@@ -1,15 +1,22 @@
 import { runMigrations } from "./db/migrate";
-import { handleLogin, handleDevices } from "./routes/auth";
-import { handleSubscriptions } from "./routes/subscriptions";
-import { handleEpisodeActions } from "./routes/episodes";
+import { ApiRouter } from "./routes";
+import { AuthService, SubscriptionService, EpisodeService } from "./services";
+import { createDatabase } from "./db/client";
+import { Config } from "./config";
+
+const config = new Config();
+const db = createDatabase(config);
 
 // Run SQLite migrations at startup
-runMigrations();
+runMigrations(db);
 
-const PORT = parseInt(process.env.PORT || "8080", 10);
+const authService = new AuthService(db);
+const subService = new SubscriptionService(db);
+const epService = new EpisodeService(db);
+const api = new ApiRouter(authService, subService, epService);
 
 const server = Bun.serve({
-  port: PORT,
+  port: config.port,
   async fetch(req: Request): Promise<Response> {
     const url = new URL(req.url);
     const pathname = url.pathname;
@@ -33,14 +40,14 @@ const server = Bun.serve({
     const authMatch = pathname.match(/^\/api\/2\/auth\/([^/]+)\/login\.json$/);
     if (authMatch) {
       const username = authMatch[1];
-      return handleLogin(req, username);
+      return api.handleLogin(req, username);
     }
 
     // Match /api/2/devices/<username>.json or /api/2/devices/<username>/<device_id>.json
     const deviceMatch = pathname.match(/^\/api\/2\/devices\/([^/.]+)(?:\/[^/]+)?\.json$/);
     if (deviceMatch) {
       const username = deviceMatch[1];
-      return handleDevices(req, username);
+      return api.handleDevices(req, username);
     }
 
     // Match /api/2/subscriptions/<username>/<device>.json
@@ -48,14 +55,14 @@ const server = Bun.serve({
     if (subMatch) {
       const username = subMatch[1];
       const device = subMatch[2];
-      return handleSubscriptions(req, username, device);
+      return api.handleSubscriptions(req, username, device);
     }
 
     // Match /api/2/episodes/<username>.json
     const episodeMatch = pathname.match(/^\/api\/2\/episodes\/([^/]+)\.json$/);
     if (episodeMatch) {
       const username = episodeMatch[1];
-      return handleEpisodeActions(req, username);
+      return api.handleEpisodeActions(req, username);
     }
 
     return new Response(JSON.stringify({ error: "Not Found" }), {

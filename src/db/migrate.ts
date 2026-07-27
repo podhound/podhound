@@ -1,7 +1,7 @@
 import { migrations } from "./migrations";
-import { db } from "./client";
+import { Database } from "bun:sqlite";
 
-export function runMigrations() {
+export function runMigrations(db: Database) {
   db.transaction(() => {
     db.exec(`
       CREATE TABLE IF NOT EXISTS _migrations (

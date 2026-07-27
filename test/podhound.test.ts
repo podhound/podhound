@@ -1,13 +1,21 @@
 import { describe, it, expect, beforeAll } from "bun:test";
 import { runMigrations } from "../src/db/migrate";
-import { db } from "../src/db/client";
-import { getOrCreateUser } from "../src/routes/auth";
-import { handleSubscriptions } from "../src/routes/subscriptions";
-import { handleEpisodeActions } from "../src/routes/episodes";
+import { createDatabase } from "../src/db/client";
+import { Config } from "../src/config";
+import { AuthService, SubscriptionService, EpisodeService } from "../src/services";
+import { ApiRouter } from "../src/routes";
+
+const config = new Config({ DATABASE_PATH: ":memory:" });
+const db = createDatabase(config);
+
+const authService = new AuthService(db);
+const subService = new SubscriptionService(db);
+const epService = new EpisodeService(db);
+const api = new ApiRouter(authService, subService, epService);
 
 describe("Podhound Core Tests", () => {
   beforeAll(() => {
-    runMigrations();
+    runMigrations(db);
   });
 
   it("should apply migrations and create tables", () => {
@@ -23,16 +31,16 @@ describe("Podhound Core Tests", () => {
   });
 
   it("should create and authenticate users", () => {
-    const user1 = getOrCreateUser("testuser", "secret123");
+    const user1 = authService.getOrCreateUser("testuser", "secret123");
     expect(user1).not.toBeNull();
     expect(user1?.username).toBe("testuser");
 
     // Authenticate with wrong password should fail
-    const invalid = getOrCreateUser("testuser", "wrongpassword");
+    const invalid = authService.getOrCreateUser("testuser", "wrongpassword");
     expect(invalid).toBeNull();
 
     // Authenticate with correct password should succeed
-    const valid = getOrCreateUser("testuser", "secret123");
+    const valid = authService.getOrCreateUser("testuser", "secret123");
     expect(valid).not.toBeNull();
     expect(valid?.id).toBe(user1?.id);
   });
@@ -53,7 +61,7 @@ describe("Podhound Core Tests", () => {
       }),
     });
 
-    const addRes = await handleSubscriptions(addReq, "subuser", "phone");
+    const addRes = await api.handleSubscriptions(addReq, "subuser", "phone");
     expect(addRes.status).toBe(200);
 
     // List subscriptions
@@ -64,7 +72,7 @@ describe("Podhound Core Tests", () => {
       },
     });
 
-    const listRes = await handleSubscriptions(listReq, "subuser", "phone");
+    const listRes = await api.handleSubscriptions(listReq, "subuser", "phone");
     expect(listRes.status).toBe(200);
     const listData = await listRes.json();
     expect(listData).toEqual(["https://feed.example.com/podcast.xml"]);
@@ -92,7 +100,7 @@ describe("Podhound Core Tests", () => {
       ]),
     });
 
-    const postRes = await handleEpisodeActions(postReq, "epuser");
+    const postRes = await api.handleEpisodeActions(postReq, "epuser");
     expect(postRes.status).toBe(200);
 
     // Query episode actions
@@ -103,7 +111,7 @@ describe("Podhound Core Tests", () => {
       },
     });
 
-    const getRes = await handleEpisodeActions(getReq, "epuser");
+    const getRes = await api.handleEpisodeActions(getReq, "epuser");
     expect(getRes.status).toBe(200);
     const getData = (await getRes.json()) as { actions: any[] };
     expect(getData.actions.length).toBeGreaterThanOrEqual(1);
