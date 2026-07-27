@@ -14,7 +14,7 @@ export class SubscriptionService {
 		userId: number,
 		addList: string[],
 		removeList: string[],
-	) {
+	): void {
 		this.db.transaction(() => {
 			const insertStmt = this.db.prepare(
 				"INSERT OR IGNORE INTO subscriptions (user_id, podcast_url) VALUES (?, ?)",

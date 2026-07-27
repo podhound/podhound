@@ -1,7 +1,7 @@
 import type { Database } from "bun:sqlite";
 import { migrations } from "./migrations";
 
-export function runMigrations(db: Database) {
+export function runMigrations(db: Database): void {
 	db.transaction(() => {
 		db.exec(`
       CREATE TABLE IF NOT EXISTS _migrations (

@@ -1,4 +1,5 @@
-import type { User, UserService } from "./user-service";
+import type { User } from "../types";
+import type { UserService } from "./user-service";
 
 export class AuthService {
 	constructor(private userService: UserService) {}

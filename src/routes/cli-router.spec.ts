@@ -1,40 +1,28 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
-import type { UserService } from "../services/user-service";
+import type { CliSubRouter } from "../types";
 import { CliRouter } from "./cli-router";
 
 describe("CliRouter", () => {
-	let userServiceMock: UserService;
+	let mockSubRouter: CliSubRouter;
 	let cliRouter: CliRouter;
 
 	beforeEach(() => {
-		userServiceMock = {
-			getAllUsers: mock(() => [{ id: 1, username: "testuser" }]),
-			createUser: mock((username: string) => ({ id: 2, username })),
-			updateUserPassword: mock(() => true),
-		} as unknown as UserService;
+		mockSubRouter = {
+			slug: "mockdomain",
+			handle: mock(() => Promise.resolve()),
+			printUsage: mock(() => {}),
+		};
 
-		cliRouter = new CliRouter(userServiceMock);
+		cliRouter = new CliRouter([mockSubRouter]);
 	});
 
-	it("should create user", async () => {
-		await cliRouter.handle(["users", "create", "testuser", "pass123"]);
-		expect(userServiceMock.createUser).toHaveBeenCalledWith(
-			"testuser",
-			"pass123",
-		);
-	});
-
-	it("should list users", async () => {
-		await cliRouter.handle(["users", "list"]);
-		expect(userServiceMock.getAllUsers).toHaveBeenCalled();
-	});
-
-	it("should update user", async () => {
-		await cliRouter.handle(["users", "update", "testuser", "newpass"]);
-		expect(userServiceMock.updateUserPassword).toHaveBeenCalledWith(
-			"testuser",
-			"newpass",
-		);
+	it("should delegate to correct sub-router", async () => {
+		await cliRouter.handle(["mockdomain", "action", "arg1"]);
+		expect(mockSubRouter.handle).toHaveBeenCalledWith([
+			"mockdomain",
+			"action",
+			"arg1",
+		]);
 	});
 
 	it("should print usage instructions for unknown domain", async () => {
@@ -44,7 +32,22 @@ describe("CliRouter", () => {
 
 		try {
 			await cliRouter.handle(["unknown_domain"]);
-			expect(consoleSpy).toHaveBeenCalledWith("Usage:");
+			expect(consoleSpy).toHaveBeenCalledWith("Available commands:");
+			expect(mockSubRouter.printUsage).toHaveBeenCalled();
+		} finally {
+			console.log = originalLog;
+		}
+	});
+
+	it("should print usage instructions if no arguments provided", async () => {
+		const consoleSpy = mock(() => {});
+		const originalLog = console.log;
+		console.log = consoleSpy;
+
+		try {
+			await cliRouter.handle([]);
+			expect(consoleSpy).toHaveBeenCalledWith("Available commands:");
+			expect(mockSubRouter.printUsage).toHaveBeenCalled();
 		} finally {
 			console.log = originalLog;
 		}

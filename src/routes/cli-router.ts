@@ -1,9 +1,12 @@
 import { parseArgs } from "node:util";
-import type { UserService } from "../services/user-service";
+import type { CliSubRouter } from "../types";
 
 export class CliRouter {
-	constructor(private userService: UserService) {}
+	constructor(private routers: CliSubRouter[]) {}
 
+	/**
+	 * Main CLI entry point. Parses arguments and routes to the appropriate domain handler.
+	 */
 	public async handle(args: string[]): Promise<void> {
 		const { positionals } = parseArgs({
 			args,
@@ -12,40 +15,28 @@ export class CliRouter {
 		});
 
 		if (positionals.length === 0) {
+			this.printUsage();
 			return;
 		}
 
 		const domain = positionals[0];
-		const action = positionals[1];
+		const router = this.routers.find((r) => r.slug === domain);
 
-		if (domain === "users") {
-			if (action === "create" && positionals.length >= 4) {
-				this.userService.createUser(positionals[2], positionals[3]);
-				console.log(`User '${positionals[2]}' created.`);
-			} else if (action === "list") {
-				const users = this.userService.getAllUsers();
-				console.table(users);
-			} else if (action === "update" && positionals.length >= 4) {
-				const success = this.userService.updateUserPassword(
-					positionals[2],
-					positionals[3],
-				);
-				if (success) {
-					console.log(`User '${positionals[2]}' updated.`);
-				} else {
-					console.log(`User '${positionals[2]}' not found.`);
-				}
-			} else {
-				console.log("Usage:");
-				console.log("  users create <username> <password>");
-				console.log("  users list");
-				console.log("  users update <username> <newpassword>");
-			}
-		} else {
-			console.log("Usage:");
-			console.log("  users create <username> <password>");
-			console.log("  users list");
-			console.log("  users update <username> <newpassword>");
+		if (!router) {
+			this.printUsage();
+			return;
+		}
+
+		await router.handle(positionals);
+	}
+
+	/**
+	 * Prints usage instructions for all registered CLI domains.
+	 */
+	private printUsage(): void {
+		console.log("Available commands:");
+		for (const router of this.routers) {
+			router.printUsage();
 		}
 	}
 }

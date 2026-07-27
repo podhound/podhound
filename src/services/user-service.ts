@@ -1,10 +1,5 @@
 import type { Database } from "bun:sqlite";
-
-export interface User {
-	id: number;
-	username: string;
-	password_hash: string;
-}
+import type { User } from "../types";
 
 export class UserService {
 	constructor(private db: Database) {}

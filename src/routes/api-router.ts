@@ -1,12 +1,11 @@
 import type { Config } from "../config";
 import type {
 	AuthService,
-	EpisodeActionPayload,
 	EpisodeService,
 	SubscriptionService,
-	User,
 	UserService,
 } from "../services";
+import type { EpisodeActionPayload, User } from "../types";
 
 export class ApiRouter {
 	constructor(
@@ -17,6 +16,10 @@ export class ApiRouter {
 		private episodeService: EpisodeService,
 	) {}
 
+	/**
+	 * Attempts to authenticate a user. If auto-registration is enabled and
+	 * the user does not exist, registers a new user instead.
+	 */
 	private authenticateOrRegister(
 		username: string,
 		password_raw: string,
@@ -30,6 +33,9 @@ export class ApiRouter {
 		return user;
 	}
 
+	/**
+	 * Authenticates an HTTP request using Basic Auth headers.
+	 */
 	public authenticateRequest(req: Request): User | null {
 		const authHeader = req.headers.get("authorization");
 		if (!authHeader?.startsWith("Basic ")) {
@@ -48,6 +54,9 @@ export class ApiRouter {
 		}
 	}
 
+	/**
+	 * Handles login requests, managing session creation via cookies.
+	 */
 	public async handleLogin(
 		req: Request,
 		urlUsername: string,
@@ -79,6 +88,9 @@ export class ApiRouter {
 		});
 	}
 
+	/**
+	 * Handles device-related requests for a user (e.g. syncing client metadata).
+	 */
 	public handleDevices(req: Request, username: string): Response {
 		const user = this.authenticateRequest(req);
 		if (!user || user.username !== username) {
@@ -105,6 +117,9 @@ export class ApiRouter {
 		return new Response("OK", { status: 200 });
 	}
 
+	/**
+	 * Handles podcast subscription updates and retrieval for a user.
+	 */
 	public async handleSubscriptions(
 		req: Request,
 		username: string,
@@ -155,6 +170,9 @@ export class ApiRouter {
 		return new Response("Method Not Allowed", { status: 405 });
 	}
 
+	/**
+	 * Handles recording and fetching episode playback actions (play, pause, etc.).
+	 */
 	public async handleEpisodeActions(
 		req: Request,
 		username: string,

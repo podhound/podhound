@@ -1,7 +1,9 @@
 import { Config } from "./config";
 import { createDatabase } from "./db/client";
 import { runMigrations } from "./db/migrate";
-import { ApiRouter, CliRouter } from "./routes";
+import { ApiRouter } from "./routes";
+import { UserCliRouter } from "./routes/cli/user-router";
+import { CliRouter } from "./routes/cli-router";
 import {
 	AuthService,
 	EpisodeService,
@@ -27,7 +29,7 @@ const api = new ApiRouter(
 	epService,
 );
 
-const cli = new CliRouter(userService);
+const cli = new CliRouter([new UserCliRouter(userService)]);
 const args = process.argv.slice(2);
 
 // If arguments are passed, run CLI mode and exit

@@ -1,13 +1,5 @@
 import type { Database } from "bun:sqlite";
-
-export interface EpisodeActionPayload {
-	podcast: string;
-	episode: string;
-	action: string;
-	timestamp?: number;
-	position?: number;
-	total?: number;
-}
+import type { EpisodeActionPayload } from "../types";
 
 export class EpisodeService {
 	constructor(private db: Database) {}
@@ -30,7 +22,10 @@ export class EpisodeService {
 		return this.db.prepare(query).all(...params) as EpisodeActionPayload[];
 	}
 
-	public saveEpisodeActions(userId: number, actions: EpisodeActionPayload[]) {
+	public saveEpisodeActions(
+		userId: number,
+		actions: EpisodeActionPayload[],
+	): void {
 		const nowTimestamp = Math.floor(Date.now() / 1000);
 		this.db.transaction(() => {
 			const stmt = this.db.prepare(`
