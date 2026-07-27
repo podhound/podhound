@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach } from "bun:test";
 import { Database } from "bun:sqlite";
-import { SubscriptionService, AuthService } from "../src/services";
-import { runMigrations } from "../src/db/migrate";
+import { SubscriptionService } from "./subscription-service";
+import { AuthService } from "./auth-service";
+import { runMigrations } from "../db/migrate";
 
 describe("SubscriptionService", () => {
   let db: Database;

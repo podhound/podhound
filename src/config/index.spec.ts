@@ -1,5 +1,5 @@
 import { describe, it, expect } from "bun:test";
-import { Config } from "../src/config";
+import { Config } from "./index";
 
 describe("Config Class", () => {
   it("should use default values when env is empty", () => {

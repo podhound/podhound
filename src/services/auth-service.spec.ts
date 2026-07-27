@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "bun:test";
 import { Database } from "bun:sqlite";
-import { AuthService } from "../src/services";
-import { runMigrations } from "../src/db/migrate";
+import { AuthService } from "./auth-service";
+import { runMigrations } from "../db/migrate";
 
 describe("AuthService", () => {
   let db: Database;
