@@ -1,8 +1,6 @@
 import { Database } from "bun:sqlite";
 import { beforeEach, describe, expect, it } from "bun:test";
-import type { Config } from "../config";
 import { runMigrations } from "../db/migrate";
-import { AuthService } from "./auth-service";
 import { EpisodeService } from "./episode-service";
 import { UserService } from "./user-service";
 
@@ -14,9 +12,7 @@ describe("EpisodeService", () => {
 	beforeEach(() => {
 		db = new Database(":memory:");
 		runMigrations(db);
-		const config = { autoRegister: true } as Config;
 		const userService = new UserService(db);
-		const authService = new AuthService(userService);
 		const user = userService.createUser("epuser", "pass");
 		userId = user?.id;
 		epService = new EpisodeService(db);

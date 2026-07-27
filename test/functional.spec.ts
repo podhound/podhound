@@ -134,7 +134,7 @@ describe("Podhound Core Tests", () => {
 
 		const getRes = await api.handleEpisodeActions(getReq, "epuser");
 		expect(getRes.status).toBe(200);
-		const getData = (await getRes.json()) as { actions: any[] };
+		const getData = (await getRes.json()) as { actions: unknown[] };
 		expect(getData.actions.length).toBeGreaterThanOrEqual(1);
 		expect(getData.actions[0].podcast).toBe(
 			"https://feed.example.com/podcast.xml",

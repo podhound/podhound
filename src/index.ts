@@ -35,8 +35,12 @@ if (args.length > 0) {
 	try {
 		await cli.handle(args);
 		process.exit(0);
-	} catch (e: any) {
-		console.error(e.message);
+	} catch (e: unknown) {
+		if (e instanceof Error) {
+			console.error(e.message);
+		} else {
+			console.error(e);
+		}
 		process.exit(1);
 	}
 }
