@@ -8,6 +8,7 @@ lerna-debug.log*
 
 # database
 *.sqlite
+data/
 
 # package-json
 package-json.lock

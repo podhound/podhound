@@ -7,7 +7,7 @@
     "dev": "bun --watch src/index.ts",
     "start": "bun run src/index.ts",
     "test": "bun test",
-    "build": "bun build --compile --minify ./src/index.ts --outfile podhound"
+    "build": "bun build --compile --minify ./src/index.ts --outfile dist/podhound"
   },
   "devDependencies": {
     "@types/bun": "latest",

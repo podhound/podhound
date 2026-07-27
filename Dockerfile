@@ -7,11 +7,10 @@ WORKDIR /app
 COPY package.json bun.lock ./
 RUN bun install
 
-COPY migrations ./migrations
 COPY src ./src
 
 # Compile standalone executable
-RUN bun build --compile --minify ./src/index.ts --outfile podhound
+RUN bun build --compile --minify ./src/index.ts --outfile dist/podhound
 
 # Stage 2: Minimal runtime image
 FROM alpine:latest AS runner
@@ -19,7 +18,7 @@ WORKDIR /app
 
 RUN apk add --no-cache ca-certificates tzdata
 
-COPY --from=builder /app/podhound /app/podhound
+COPY --from=builder /app/dist/podhound /app/podhound
 
 # Directory for SQLite database persistence
 RUN mkdir -p /app/data

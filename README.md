@@ -105,7 +105,7 @@ docker compose up -d
 5. **Build a standalone executable binary:**
    ```bash
    bun run build
-   ./podhound
+   ./dist/podhound
    ```
 
 ---
@@ -115,7 +115,7 @@ docker compose up -d
 | Variable | Description | Default Value |
 | :--- | :--- | :--- |
 | `PORT` | HTTP port the server listens on | `8080` |
-| `DATABASE_PATH` | Path to the SQLite database file | `podhound.db` (or `/app/data/podhound.db` in Docker) |
+| `DATABASE_PATH` | Path to the SQLite database file | `data/podhound.db` (or `/app/data/podhound.db` in Docker) |
 
 ---
 
