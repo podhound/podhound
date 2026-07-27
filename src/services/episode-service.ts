@@ -39,7 +39,9 @@ export class EpisodeService {
       `);
 
 			for (const act of actions) {
-				if (!act.podcast || !act.episode || !act.action) continue;
+				if (!act.podcast || !act.episode || !act.action) {
+					continue;
+				}
 				const ts = act.timestamp || nowTimestamp;
 				const pos = act.position || 0;
 				const tot = act.total || 0;

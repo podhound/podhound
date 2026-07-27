@@ -16,7 +16,7 @@ describe("EpisodeService", () => {
 		const config = { autoRegister: true } as Config;
 		const authService = new AuthService(db, config);
 		const user = authService.getOrCreateUser("epuser", "pass");
-		userId = user!.id;
+		userId = user?.id;
 		epService = new EpisodeService(db);
 	});
 

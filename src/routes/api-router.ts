@@ -15,12 +15,16 @@ export class ApiRouter {
 
 	public authenticateRequest(req: Request): User | null {
 		const authHeader = req.headers.get("authorization");
-		if (!authHeader || !authHeader.startsWith("Basic ")) return null;
+		if (!authHeader?.startsWith("Basic ")) {
+			return null;
+		}
 
 		try {
 			const credentials = atob(authHeader.substring(6));
 			const [username, password] = credentials.split(":");
-			if (!username || !password) return null;
+			if (!username || !password) {
+				return null;
+			}
 			return this.authService.getOrCreateUser(username, password);
 		} catch {
 			return null;

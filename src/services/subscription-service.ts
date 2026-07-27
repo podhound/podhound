@@ -20,14 +20,18 @@ export class SubscriptionService {
 				"INSERT OR IGNORE INTO subscriptions (user_id, podcast_url) VALUES (?, ?)",
 			);
 			for (const url of addList) {
-				if (url) insertStmt.run(userId, url);
+				if (url) {
+					insertStmt.run(userId, url);
+				}
 			}
 
 			const deleteStmt = this.db.prepare(
 				"DELETE FROM subscriptions WHERE user_id = ? AND podcast_url = ?",
 			);
 			for (const url of removeList) {
-				if (url) deleteStmt.run(userId, url);
+				if (url) {
+					deleteStmt.run(userId, url);
+				}
 			}
 		})();
 	}

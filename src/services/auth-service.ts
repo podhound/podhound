@@ -8,7 +8,10 @@ export interface User {
 }
 
 export class AuthService {
-	constructor(private db: Database, private config: Config) {}
+	constructor(
+		private db: Database,
+		private config: Config,
+	) {}
 
 	public getOrCreateUser(username: string, password?: string): User | null {
 		const user = this.db
@@ -16,14 +19,20 @@ export class AuthService {
 			.get(username) as User | null;
 
 		if (!user) {
-			if (!password) return null;
-			if (!this.config.autoRegister) return null; // Respect config
+			if (!password) {
+				return null;
+			}
+			if (!this.config.autoRegister) {
+				return null; // Respect config
+			}
 			return this.createUser(username, password);
 		}
 
 		if (password) {
 			const isValid = Bun.password.verifySync(password, user.password_hash);
-			if (!isValid) return null;
+			if (!isValid) {
+				return null;
+			}
 		}
 
 		return user;
@@ -41,7 +50,9 @@ export class AuthService {
 		const userExists = this.db
 			.prepare("SELECT 1 FROM users WHERE username = ?")
 			.get(username);
-		if (!userExists) return false;
+		if (!userExists) {
+			return false;
+		}
 
 		const password_hash = Bun.password.hashSync(password_raw);
 		const result = this.db
@@ -51,8 +62,9 @@ export class AuthService {
 	}
 
 	public getAllUsers(): { id: number; username: string }[] {
-		return this.db
-			.prepare("SELECT id, username FROM users")
-			.all() as { id: number; username: string }[];
+		return this.db.prepare("SELECT id, username FROM users").all() as {
+			id: number;
+			username: string;
+		}[];
 	}
 }

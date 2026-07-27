@@ -8,7 +8,7 @@
     "start": "bun run src/index.ts",
     "test": "bun test",
     "lint": "biome check src test",
-    "lint:fix": "biome check --write src test",
+    "lint:fix": "biome check --write --unsafe src test",
     "build": "bun build --compile --minify ./src/index.ts --outfile dist/podhound"
   },
   "devDependencies": {

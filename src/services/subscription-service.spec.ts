@@ -16,7 +16,7 @@ describe("SubscriptionService", () => {
 		const config = { autoRegister: true } as Config;
 		const authService = new AuthService(db, config);
 		const user = authService.getOrCreateUser("subuser", "pass");
-		userId = user!.id;
+		userId = user?.id;
 		subService = new SubscriptionService(db);
 	});
 

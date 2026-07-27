@@ -11,7 +11,9 @@ export class CliRouter {
 			strict: false,
 		});
 
-		if (positionals.length === 0) return;
+		if (positionals.length === 0) {
+			return;
+		}
 
 		const domain = positionals[0];
 		const action = positionals[1];
@@ -28,8 +30,11 @@ export class CliRouter {
 					positionals[2],
 					positionals[3],
 				);
-				if (success) console.log(`User '${positionals[2]}' updated.`);
-				else console.log(`User '${positionals[2]}' not found.`);
+				if (success) {
+					console.log(`User '${positionals[2]}' updated.`);
+				} else {
+					console.log(`User '${positionals[2]}' not found.`);
+				}
 			} else {
 				console.log("Usage:");
 				console.log("  users create <username> <password>");
