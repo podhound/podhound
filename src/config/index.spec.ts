@@ -16,4 +16,16 @@ describe("Config Class", () => {
 		expect(config.port).toBe(3000);
 		expect(config.databasePath).toBe("/custom/path.db");
 	});
+
+	it("should parse AUTO_REGISTER flag", () => {
+		process.env.AUTO_REGISTER = "true";
+		const config = new Config();
+		expect(config.autoRegister).toBe(true);
+		delete process.env.AUTO_REGISTER;
+	});
+
+	it("should default autoRegister to false", () => {
+		const config = new Config();
+		expect(config.autoRegister).toBe(false);
+	});
 });

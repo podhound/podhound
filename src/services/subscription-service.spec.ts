@@ -1,5 +1,6 @@
 import { Database } from "bun:sqlite";
 import { beforeEach, describe, expect, it } from "bun:test";
+import type { Config } from "../config";
 import { runMigrations } from "../db/migrate";
 import { AuthService } from "./auth-service";
 import { SubscriptionService } from "./subscription-service";
@@ -12,7 +13,8 @@ describe("SubscriptionService", () => {
 	beforeEach(() => {
 		db = new Database(":memory:");
 		runMigrations(db);
-		const authService = new AuthService(db);
+		const config = { autoRegister: true } as Config;
+		const authService = new AuthService(db, config);
 		const user = authService.getOrCreateUser("subuser", "pass");
 		userId = user!.id;
 		subService = new SubscriptionService(db);

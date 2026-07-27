@@ -10,7 +10,7 @@ const db = createDatabase(config);
 // Run SQLite migrations at startup
 runMigrations(db);
 
-const authService = new AuthService(db);
+const authService = new AuthService(db, config);
 const subService = new SubscriptionService(db);
 const epService = new EpisodeService(db);
 const api = new ApiRouter(authService, subService, epService);
