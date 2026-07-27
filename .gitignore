@@ -112,3 +112,6 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Local docs
+docs/_local/
