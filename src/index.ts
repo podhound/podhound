@@ -1,7 +1,7 @@
 import { Config } from "./config";
 import { createDatabase } from "./db/client";
 import { runMigrations } from "./db/migrate";
-import { ApiRouter } from "./routes";
+import { ApiRouter, CliRouter } from "./routes";
 import { AuthService, EpisodeService, SubscriptionService } from "./services";
 
 const config = new Config();
@@ -14,6 +14,15 @@ const authService = new AuthService(db, config);
 const subService = new SubscriptionService(db);
 const epService = new EpisodeService(db);
 const api = new ApiRouter(authService, subService, epService);
+
+const cli = new CliRouter(authService);
+const args = process.argv.slice(2);
+
+// If arguments are passed, run CLI mode and exit
+if (args.length > 0) {
+	await cli.handle(args);
+	process.exit(0);
+}
 
 const server = Bun.serve({
 	port: config.port,
