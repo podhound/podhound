@@ -16,10 +16,16 @@ const db = createDatabase(config);
 runMigrations(db);
 
 const userService = new UserService(db);
-const authService = new AuthService(userService, config);
+const authService = new AuthService(userService);
 const subService = new SubscriptionService(db);
 const epService = new EpisodeService(db);
-const api = new ApiRouter(authService, subService, epService);
+const api = new ApiRouter(
+	authService,
+	userService,
+	config,
+	subService,
+	epService,
+);
 
 const cli = new CliRouter(userService);
 const args = process.argv.slice(2);

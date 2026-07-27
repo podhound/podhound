@@ -16,8 +16,8 @@ describe("SubscriptionService", () => {
 		runMigrations(db);
 		const config = { autoRegister: true } as Config;
 		const userService = new UserService(db);
-		const authService = new AuthService(userService, config);
-		const user = authService.getOrCreateUser("subuser", "pass");
+		const authService = new AuthService(userService);
+		const user = userService.createUser("subuser", "pass");
 		userId = user?.id;
 		subService = new SubscriptionService(db);
 	});

@@ -14,10 +14,16 @@ const config = new Config({ DATABASE_PATH: ":memory:", AUTO_REGISTER: "true" });
 const db = createDatabase(config);
 
 const userService = new UserService(db);
-const authService = new AuthService(userService, config);
+const authService = new AuthService(userService);
 const subService = new SubscriptionService(db);
 const epService = new EpisodeService(db);
-const api = new ApiRouter(authService, subService, epService);
+const api = new ApiRouter(
+	authService,
+	userService,
+	config,
+	subService,
+	epService,
+);
 
 describe("Podhound Core Tests", () => {
 	beforeAll(() => {
@@ -37,16 +43,16 @@ describe("Podhound Core Tests", () => {
 	});
 
 	it("should create and authenticate users", () => {
-		const user1 = authService.getOrCreateUser("testuser", "secret123");
+		const user1 = userService.createUser("testuser", "secret123");
 		expect(user1).not.toBeNull();
 		expect(user1?.username).toBe("testuser");
 
 		// Authenticate with wrong password should fail
-		const invalid = authService.getOrCreateUser("testuser", "wrongpassword");
+		const invalid = authService.authenticate("testuser", "wrongpassword");
 		expect(invalid).toBeNull();
 
 		// Authenticate with correct password should succeed
-		const valid = authService.getOrCreateUser("testuser", "secret123");
+		const valid = authService.authenticate("testuser", "secret123");
 		expect(valid).not.toBeNull();
 		expect(valid?.id).toBe(user1?.id);
 	});

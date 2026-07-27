@@ -1,17 +1,34 @@
+import type { Config } from "../config";
 import type {
 	AuthService,
 	EpisodeActionPayload,
 	EpisodeService,
 	SubscriptionService,
 	User,
+	UserService,
 } from "../services";
 
 export class ApiRouter {
 	constructor(
 		private authService: AuthService,
+		private userService: UserService,
+		private config: Config,
 		private subscriptionService: SubscriptionService,
 		private episodeService: EpisodeService,
 	) {}
+
+	private authenticateOrRegister(
+		username: string,
+		password_raw: string,
+	): User | null {
+		let user = this.authService.authenticate(username, password_raw);
+		if (!user && this.config.autoRegister) {
+			if (!this.userService.getUserByUsername(username)) {
+				user = this.userService.createUser(username, password_raw);
+			}
+		}
+		return user;
+	}
 
 	public authenticateRequest(req: Request): User | null {
 		const authHeader = req.headers.get("authorization");
@@ -25,7 +42,7 @@ export class ApiRouter {
 			if (!username || !password) {
 				return null;
 			}
-			return this.authService.getOrCreateUser(username, password);
+			return this.authenticateOrRegister(username, password);
 		} catch {
 			return null;
 		}
@@ -41,7 +58,7 @@ export class ApiRouter {
 			try {
 				const body = (await req.json()) as { password?: string };
 				if (body.password) {
-					user = this.authService.getOrCreateUser(urlUsername, body.password);
+					user = this.authenticateOrRegister(urlUsername, body.password);
 				}
 			} catch {}
 		}

@@ -16,8 +16,8 @@ describe("EpisodeService", () => {
 		runMigrations(db);
 		const config = { autoRegister: true } as Config;
 		const userService = new UserService(db);
-		const authService = new AuthService(userService, config);
-		const user = authService.getOrCreateUser("epuser", "pass");
+		const authService = new AuthService(userService);
+		const user = userService.createUser("epuser", "pass");
 		userId = user?.id;
 		epService = new EpisodeService(db);
 	});
