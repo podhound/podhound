@@ -1,8 +1,8 @@
 import { parseArgs } from "node:util";
-import type { AuthService } from "../services/auth-service";
+import type { UserService } from "../services/user-service";
 
 export class CliRouter {
-	constructor(private authService: AuthService) {}
+	constructor(private userService: UserService) {}
 
 	public async handle(args: string[]): Promise<void> {
 		const { positionals } = parseArgs({
@@ -20,13 +20,13 @@ export class CliRouter {
 
 		if (domain === "users") {
 			if (action === "create" && positionals.length >= 4) {
-				this.authService.createUser(positionals[2], positionals[3]);
+				this.userService.createUser(positionals[2], positionals[3]);
 				console.log(`User '${positionals[2]}' created.`);
 			} else if (action === "list") {
-				const users = this.authService.getAllUsers();
+				const users = this.userService.getAllUsers();
 				console.table(users);
 			} else if (action === "update" && positionals.length >= 4) {
-				const success = this.authService.updateUserPassword(
+				const success = this.userService.updateUserPassword(
 					positionals[2],
 					positionals[3],
 				);

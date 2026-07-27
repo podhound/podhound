@@ -1,23 +1,24 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
-import type { AuthService } from "../services/auth-service";
+import type { UserService } from "../services/user-service";
 import { CliRouter } from "./cli-router";
 
 describe("CliRouter", () => {
-	let authServiceMock: AuthService;
+	let userServiceMock: UserService;
 	let cliRouter: CliRouter;
 
 	beforeEach(() => {
-		authServiceMock = {
-			createUser: mock(() => ({ id: 1, username: "test", password_hash: "" })),
-			getAllUsers: mock(() => [{ id: 1, username: "test" }]),
+		userServiceMock = {
+			getAllUsers: mock(() => [{ id: 1, username: "testuser" }]),
+			createUser: mock((username: string) => ({ id: 2, username })),
 			updateUserPassword: mock(() => true),
-		} as unknown as AuthService;
-		cliRouter = new CliRouter(authServiceMock);
+		} as unknown as UserService;
+
+		cliRouter = new CliRouter(userServiceMock);
 	});
 
 	it("should create user", async () => {
 		await cliRouter.handle(["users", "create", "testuser", "pass123"]);
-		expect(authServiceMock.createUser).toHaveBeenCalledWith(
+		expect(userServiceMock.createUser).toHaveBeenCalledWith(
 			"testuser",
 			"pass123",
 		);
@@ -25,12 +26,12 @@ describe("CliRouter", () => {
 
 	it("should list users", async () => {
 		await cliRouter.handle(["users", "list"]);
-		expect(authServiceMock.getAllUsers).toHaveBeenCalled();
+		expect(userServiceMock.getAllUsers).toHaveBeenCalled();
 	});
 
 	it("should update user", async () => {
 		await cliRouter.handle(["users", "update", "testuser", "newpass"]);
-		expect(authServiceMock.updateUserPassword).toHaveBeenCalledWith(
+		expect(userServiceMock.updateUserPassword).toHaveBeenCalledWith(
 			"testuser",
 			"newpass",
 		);

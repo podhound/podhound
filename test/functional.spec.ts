@@ -7,12 +7,14 @@ import {
 	AuthService,
 	EpisodeService,
 	SubscriptionService,
+	UserService,
 } from "../src/services";
 
 const config = new Config({ DATABASE_PATH: ":memory:", AUTO_REGISTER: "true" });
 const db = createDatabase(config);
 
-const authService = new AuthService(db, config);
+const userService = new UserService(db);
+const authService = new AuthService(userService, config);
 const subService = new SubscriptionService(db);
 const epService = new EpisodeService(db);
 const api = new ApiRouter(authService, subService, epService);

@@ -4,6 +4,7 @@ import type { Config } from "../config";
 import { runMigrations } from "../db/migrate";
 import { AuthService } from "./auth-service";
 import { SubscriptionService } from "./subscription-service";
+import { UserService } from "./user-service";
 
 describe("SubscriptionService", () => {
 	let db: Database;
@@ -14,7 +15,8 @@ describe("SubscriptionService", () => {
 		db = new Database(":memory:");
 		runMigrations(db);
 		const config = { autoRegister: true } as Config;
-		const authService = new AuthService(db, config);
+		const userService = new UserService(db);
+		const authService = new AuthService(userService, config);
 		const user = authService.getOrCreateUser("subuser", "pass");
 		userId = user?.id;
 		subService = new SubscriptionService(db);
