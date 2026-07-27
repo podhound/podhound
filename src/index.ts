@@ -20,8 +20,13 @@ const args = process.argv.slice(2);
 
 // If arguments are passed, run CLI mode and exit
 if (args.length > 0) {
-	await cli.handle(args);
-	process.exit(0);
+	try {
+		await cli.handle(args);
+		process.exit(0);
+	} catch (e: any) {
+		console.error(e.message);
+		process.exit(1);
+	}
 }
 
 const server = Bun.serve({

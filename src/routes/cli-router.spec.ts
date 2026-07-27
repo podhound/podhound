@@ -35,4 +35,17 @@ describe("CliRouter", () => {
 			"newpass",
 		);
 	});
+
+	it("should print usage instructions for unknown domain", async () => {
+		const consoleSpy = mock(() => {});
+		const originalLog = console.log;
+		console.log = consoleSpy;
+
+		try {
+			await cliRouter.handle(["unknown_domain"]);
+			expect(consoleSpy).toHaveBeenCalledWith("Usage:");
+		} finally {
+			console.log = originalLog;
+		}
+	});
 });

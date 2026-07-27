@@ -1,5 +1,5 @@
 import { Database } from "bun:sqlite";
-import { beforeEach, describe, expect, it } from "bun:test";
+import { beforeEach, describe, expect, it, spyOn } from "bun:test";
 import type { Config } from "../config";
 import { runMigrations } from "../db/migrate";
 import { AuthService } from "./auth-service";
@@ -52,6 +52,14 @@ describe("AuthService", () => {
 
 		const user = authService.getOrCreateUser("testuser", "newpass"); // should succeed
 		expect(user).not.toBeNull();
+	});
+
+	it("should return false early when updating password for non-existent user without hashing", () => {
+		const hashSpy = spyOn(Bun.password, "hashSync");
+		const updated = authService.updateUserPassword("nonexistent", "newpass");
+		expect(updated).toBe(false);
+		expect(hashSpy).not.toHaveBeenCalled();
+		hashSpy.mockRestore();
 	});
 
 	it("should get all users", () => {

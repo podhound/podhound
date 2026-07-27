@@ -38,6 +38,11 @@ export class AuthService {
 	}
 
 	public updateUserPassword(username: string, password_raw: string): boolean {
+		const userExists = this.db
+			.prepare("SELECT 1 FROM users WHERE username = ?")
+			.get(username);
+		if (!userExists) return false;
+
 		const password_hash = Bun.password.hashSync(password_raw);
 		const result = this.db
 			.prepare("UPDATE users SET password_hash = ? WHERE username = ?")

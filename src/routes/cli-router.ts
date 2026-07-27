@@ -36,6 +36,11 @@ export class CliRouter {
 				console.log("  users list");
 				console.log("  users update <username> <newpassword>");
 			}
+		} else {
+			console.log("Usage:");
+			console.log("  users create <username> <password>");
+			console.log("  users list");
+			console.log("  users update <username> <newpassword>");
 		}
 	}
 }
