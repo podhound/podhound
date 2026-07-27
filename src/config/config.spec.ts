@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { Config } from "./index";
+import { Config } from "./config";
 
 describe("Config Class", () => {
 	it("should use default values when env is empty", () => {
@@ -18,14 +18,12 @@ describe("Config Class", () => {
 	});
 
 	it("should parse AUTO_REGISTER flag", () => {
-		process.env.AUTO_REGISTER = "true";
-		const config = new Config();
+		const config = new Config({ AUTO_REGISTER: "true" });
 		expect(config.autoRegister).toBe(true);
-		delete process.env.AUTO_REGISTER;
 	});
 
 	it("should default autoRegister to false", () => {
-		const config = new Config();
+		const config = new Config({});
 		expect(config.autoRegister).toBe(false);
 	});
 });
