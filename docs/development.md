@@ -18,7 +18,7 @@
 
 3. **Start the server in development mode (with hot-reloading):**
    ```bash
-   bun run dev
+   bun start:dev
    ```
    The server will start listening at `http://localhost:8080`.
 

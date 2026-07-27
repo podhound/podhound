@@ -1,6 +1,6 @@
 import { Database } from "bun:sqlite";
 import { beforeEach, describe, expect, it } from "bun:test";
-import { runMigrations } from "../db/migrate";
+import { runMigrations } from "../db/migrations";
 import { SubscriptionService } from "./subscription-service";
 import { UserService } from "./user-service";
 

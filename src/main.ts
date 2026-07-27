@@ -1,9 +1,6 @@
 import { Config } from "./config";
-import { createDatabase } from "./db/client";
-import { runMigrations } from "./db/migrate";
-import { ApiRouter } from "./routes";
-import { UserCliRouter } from "./routes/cli/user-router";
-import { CliRouter } from "./routes/cli-router";
+import { createDatabase } from "./db";
+import { ApiRouter, CliRouter } from "./routes";
 import {
 	AuthService,
 	EpisodeService,
@@ -13,9 +10,6 @@ import {
 
 const config = new Config();
 const db = createDatabase(config);
-
-// Run SQLite migrations at startup
-runMigrations(db);
 
 const userService = new UserService(db);
 const authService = new AuthService(userService);
@@ -29,7 +23,7 @@ const api = new ApiRouter(
 	epService,
 );
 
-const cli = new CliRouter([new UserCliRouter(userService)]);
+const cli = new CliRouter(userService);
 const args = process.argv.slice(2);
 
 // If arguments are passed, run CLI mode and exit
@@ -68,37 +62,9 @@ const server = Bun.serve({
 			);
 		}
 
-		// Match /api/2/auth/<username>/login.json
-		const authMatch = pathname.match(/^\/api\/2\/auth\/([^/]+)\/login\.json$/);
-		if (authMatch) {
-			const username = authMatch[1];
-			return api.handleLogin(req, username);
-		}
-
-		// Match /api/2/devices/<username>.json or /api/2/devices/<username>/<device_id>.json
-		const deviceMatch = pathname.match(
-			/^\/api\/2\/devices\/([^/.]+)(?:\/[^/]+)?\.json$/,
-		);
-		if (deviceMatch) {
-			const username = deviceMatch[1];
-			return api.handleDevices(req, username);
-		}
-
-		// Match /api/2/subscriptions/<username>/<device>.json
-		const subMatch = pathname.match(
-			/^\/api\/2\/subscriptions\/([^/]+)\/([^/]+)\.json$/,
-		);
-		if (subMatch) {
-			const username = subMatch[1];
-			const device = subMatch[2];
-			return api.handleSubscriptions(req, username, device);
-		}
-
-		// Match /api/2/episodes/<username>.json
-		const episodeMatch = pathname.match(/^\/api\/2\/episodes\/([^/]+)\.json$/);
-		if (episodeMatch) {
-			const username = episodeMatch[1];
-			return api.handleEpisodeActions(req, username);
+		const apiResponse = await api.handle(req);
+		if (apiResponse) {
+			return apiResponse;
 		}
 
 		return new Response(JSON.stringify({ error: "Not Found" }), {

@@ -1,7 +1,6 @@
-import { beforeAll, describe, expect, it } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import { Config } from "../src/config";
-import { createDatabase } from "../src/db/client";
-import { runMigrations } from "../src/db/migrate";
+import { createDatabase } from "../src/db";
 import { ApiRouter } from "../src/routes";
 import {
 	AuthService,
@@ -17,6 +16,7 @@ const userService = new UserService(db);
 const authService = new AuthService(userService);
 const subService = new SubscriptionService(db);
 const epService = new EpisodeService(db);
+
 const api = new ApiRouter(
 	authService,
 	userService,
@@ -26,10 +26,6 @@ const api = new ApiRouter(
 );
 
 describe("Podhound Core Tests", () => {
-	beforeAll(() => {
-		runMigrations(db);
-	});
-
 	it("should apply migrations and create tables", () => {
 		const tables = db
 			.prepare("SELECT name FROM sqlite_master WHERE type='table'")
@@ -76,7 +72,8 @@ describe("Podhound Core Tests", () => {
 			},
 		);
 
-		const addRes = await api.handleSubscriptions(addReq, "subuser", "phone");
+		const addRes = (await api.handle(addReq)) as Response;
+		expect(addRes).not.toBeNull();
 		expect(addRes.status).toBe(200);
 
 		// List subscriptions
@@ -90,7 +87,8 @@ describe("Podhound Core Tests", () => {
 			},
 		);
 
-		const listRes = await api.handleSubscriptions(listReq, "subuser", "phone");
+		const listRes = (await api.handle(listReq)) as Response;
+		expect(listRes).not.toBeNull();
 		expect(listRes.status).toBe(200);
 		const listData = await listRes.json();
 		expect(listData).toEqual(["https://feed.example.com/podcast.xml"]);
@@ -118,7 +116,8 @@ describe("Podhound Core Tests", () => {
 			]),
 		});
 
-		const postRes = await api.handleEpisodeActions(postReq, "epuser");
+		const postRes = (await api.handle(postReq)) as Response;
+		expect(postRes).not.toBeNull();
 		expect(postRes.status).toBe(200);
 
 		// Query episode actions
@@ -132,7 +131,8 @@ describe("Podhound Core Tests", () => {
 			},
 		);
 
-		const getRes = await api.handleEpisodeActions(getReq, "epuser");
+		const getRes = (await api.handle(getReq)) as Response;
+		expect(getRes).not.toBeNull();
 		expect(getRes.status).toBe(200);
 		const getData = (await getRes.json()) as { actions: unknown[] };
 		expect(getData.actions.length).toBeGreaterThanOrEqual(1);

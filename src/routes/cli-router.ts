@@ -1,9 +1,14 @@
 import { parseArgs } from "node:util";
+import type { UserService } from "../services";
 import type { CliSubRouter } from "../types";
+import { UserCliRouter } from "./cli";
 
 export class CliRouter {
-	constructor(private routers: CliSubRouter[]) {}
+	private routers: CliSubRouter[];
 
+	constructor(userService: UserService) {
+		this.routers = [new UserCliRouter(userService)];
+	}
 	/**
 	 * Main CLI entry point. Parses arguments and routes to the appropriate domain handler.
 	 */
@@ -19,7 +24,7 @@ export class CliRouter {
 			return;
 		}
 
-		const domain = positionals[0];
+		const [domain] = positionals;
 		const router = this.routers.find((r) => r.slug === domain);
 
 		if (!router) {

@@ -1,6 +1,6 @@
 import { Database } from "bun:sqlite";
 import { beforeEach, describe, expect, it, spyOn } from "bun:test";
-import { runMigrations } from "../db/migrate";
+import { runMigrations } from "../db/migrations";
 import { UserService } from "./user-service";
 
 describe("UserService", () => {

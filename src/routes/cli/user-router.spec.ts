@@ -50,7 +50,9 @@ describe("UserCliRouter", () => {
 	});
 
 	it("should print usage when updating non-existent user", async () => {
-		userServiceMock.updateUserPassword = mock(() => false) as any;
+		userServiceMock.updateUserPassword = mock(
+			() => false,
+		) as unknown as typeof userServiceMock.updateUserPassword;
 		await userRouter.handle(["users", "update", "ghost", "newpass"]);
 		expect(userServiceMock.updateUserPassword).toHaveBeenCalledWith(
 			"ghost",
