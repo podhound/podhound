@@ -7,7 +7,7 @@
 
 1. **Clone the repository and navigate into the directory:**
    ```bash
-   git clone https://github.com/ksar/podhound.git
+   git clone https://github.com/svyatoslav-kubakh/podhound.git
    cd podhound
    ```
 

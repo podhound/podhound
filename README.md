@@ -3,8 +3,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Bun](https://img.shields.io/badge/Bun-v1.x-black?logo=bun)](https://bun.sh)
 [![TypeScript](https://img.shields.io/badge/TypeScript-v7-blue?logo=typescript)](https://www.typescriptlang.org/)
-[![CI Pipeline](https://github.com/ksar/podhound/actions/workflows/ci.yml/badge.svg)](https://github.com/ksar/podhound/actions)
-[![Latest Release](https://img.shields.io/github/v/release/ksar/podhound)](https://github.com/ksar/podhound/releases)
+[![CI Pipeline](https://github.com/svyatoslav-kubakh/podhound/actions/workflows/ci.yml/badge.svg)](https://github.com/svyatoslav-kubakh/podhound/actions)
+[![Latest Release](https://img.shields.io/github/v/release/svyatoslav-kubakh/podhound)](https://github.com/svyatoslav-kubakh/podhound/releases)
 
 <img src="assets/logo.png" alt="Podhound Logo" width="120" align="right">
 
