@@ -7,9 +7,12 @@
     "dev": "bun --watch src/index.ts",
     "start": "bun run src/index.ts",
     "test": "bun test",
+    "lint": "biome check src test",
+    "lint:fix": "biome check --write src test",
     "build": "bun build --compile --minify ./src/index.ts --outfile dist/podhound"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.5",
     "@types/bun": "latest",
     "typescript": "^7.0.0"
   }
