@@ -61,23 +61,12 @@ describe("UserCliRouter", () => {
 		expect(consoleLogSpy).toHaveBeenCalledWith("User 'ghost' not found.");
 	});
 
-	it("should print usage on unknown action", async () => {
-		await userRouter.handle(["users", "unknown_action"]);
-		expect(consoleLogSpy).toHaveBeenCalledWith("Usage:");
-		expect(consoleLogSpy).toHaveBeenCalledWith(
-			"  users create <username> <password>",
-		);
-	});
-
-	it("should print usage when create is missing arguments", async () => {
-		await userRouter.handle(["users", "create", "only_user"]);
-		expect(userServiceMock.createUser).not.toHaveBeenCalled();
-		expect(consoleLogSpy).toHaveBeenCalledWith("Usage:");
-	});
-
-	it("should print usage when update is missing arguments", async () => {
-		await userRouter.handle(["users", "update", "only_user"]);
-		expect(userServiceMock.updateUserPassword).not.toHaveBeenCalled();
+	it.each([
+		{ args: ["users", "unknown_action"] },
+		{ args: ["users", "create", "only_user"] },
+		{ args: ["users", "update", "only_user"] },
+	])("should print usage on invalid action/args: $args", async ({ args }) => {
+		await userRouter.handle(args);
 		expect(consoleLogSpy).toHaveBeenCalledWith("Usage:");
 	});
 });

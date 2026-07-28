@@ -2,28 +2,36 @@ import { describe, expect, it } from "bun:test";
 import { Config } from "./config";
 
 describe("Config Class", () => {
-	it("should use default values when env is empty", () => {
-		const config = new Config({});
-		expect(config.port).toBe(8080);
-		expect(config.databasePath).toBe("data/podhound.db");
-	});
-
-	it("should parse values from env correctly", () => {
-		const config = new Config({
-			PORT: "3000",
-			DATABASE_PATH: "/custom/path.db",
-		});
-		expect(config.port).toBe(3000);
-		expect(config.databasePath).toBe("/custom/path.db");
-	});
-
-	it("should parse AUTO_REGISTER flag", () => {
-		const config = new Config({ AUTO_REGISTER: "true" });
-		expect(config.autoRegister).toBe(true);
-	});
-
-	it("should default autoRegister to false", () => {
-		const config = new Config({});
-		expect(config.autoRegister).toBe(false);
-	});
+	it.each([
+		{
+			env: {},
+			expectedPort: 8080,
+			expectedPath: "data/podhound.db",
+			expectedAutoReg: false,
+		},
+		{
+			env: {
+				PORT: "3000",
+				DATABASE_PATH: "/custom/path.db",
+				AUTO_REGISTER: "true",
+			},
+			expectedPort: 3000,
+			expectedPath: "/custom/path.db",
+			expectedAutoReg: true,
+		},
+		{
+			env: { AUTO_REGISTER: "false" },
+			expectedPort: 8080,
+			expectedPath: "data/podhound.db",
+			expectedAutoReg: false,
+		},
+	])(
+		"should parse env $env correctly",
+		({ env, expectedPort, expectedPath, expectedAutoReg }) => {
+			const config = new Config(env);
+			expect(config.port).toBe(expectedPort);
+			expect(config.databasePath).toBe(expectedPath);
+			expect(config.autoRegister).toBe(expectedAutoReg);
+		},
+	);
 });

@@ -30,29 +30,19 @@ describe("CliRouter", () => {
 		}
 	});
 
-	it("should print usage instructions for unknown domain", async () => {
-		const consoleSpy = mock(() => {});
-		const originalLog = console.log;
-		console.log = consoleSpy;
+	it.each([{ args: ["unknown_domain"] }, { args: [] }])(
+		"should print available commands for unhandled input: $args",
+		async ({ args }) => {
+			const consoleSpy = mock(() => {});
+			const originalLog = console.log;
+			console.log = consoleSpy;
 
-		try {
-			await cliRouter.handle(["unknown_domain"]);
-			expect(consoleSpy).toHaveBeenCalledWith("Available commands:");
-		} finally {
-			console.log = originalLog;
-		}
-	});
-
-	it("should print usage instructions if no arguments provided", async () => {
-		const consoleSpy = mock(() => {});
-		const originalLog = console.log;
-		console.log = consoleSpy;
-
-		try {
-			await cliRouter.handle([]);
-			expect(consoleSpy).toHaveBeenCalledWith("Available commands:");
-		} finally {
-			console.log = originalLog;
-		}
-	});
+			try {
+				await cliRouter.handle(args);
+				expect(consoleSpy).toHaveBeenCalledWith("Available commands:");
+			} finally {
+				console.log = originalLog;
+			}
+		},
+	);
 });
