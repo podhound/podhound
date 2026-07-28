@@ -15,7 +15,7 @@ import {
 } from "./api";
 
 export class ApiRouter {
-	private routers: ApiSubRouter[];
+	private routers: Record<string, ApiSubRouter>;
 
 	constructor(
 		authService: AuthService,
@@ -30,12 +30,16 @@ export class ApiRouter {
 			config,
 		);
 
-		this.routers = [
+		const routerList: ApiSubRouter[] = [
 			new AuthApiRouter(authenticator),
 			new DevicesApiRouter(authenticator),
 			new SubscriptionsApiRouter(authenticator, subService),
 			new EpisodesApiRouter(authenticator, epService),
 		];
+
+		this.routers = Object.fromEntries(
+			routerList.map((router) => [router.domain, router]),
+		);
 	}
 
 	/**
@@ -52,7 +56,7 @@ export class ApiRouter {
 		}
 
 		const domain = pathParts[2];
-		const router = this.routers.find((r) => r.domain === domain);
+		const router = this.routers[domain];
 
 		if (!router) {
 			return null;

@@ -4,10 +4,13 @@ import type { CliSubRouter } from "../types";
 import { UserCliRouter } from "./cli";
 
 export class CliRouter {
-	private routers: CliSubRouter[];
+	private routers: Record<string, CliSubRouter>;
 
 	constructor(userService: UserService) {
-		this.routers = [new UserCliRouter(userService)];
+		const routerList: CliSubRouter[] = [new UserCliRouter(userService)];
+		this.routers = Object.fromEntries(
+			routerList.map((router) => [router.slug, router]),
+		);
 	}
 
 	/**
@@ -43,7 +46,7 @@ export class CliRouter {
 		}
 
 		const [domain] = positionals;
-		const router = this.routers.find((r) => r.slug === domain);
+		const router = this.routers[domain];
 
 		if (!router) {
 			this.printUsage();
@@ -58,7 +61,7 @@ export class CliRouter {
 	 */
 	private printUsage(): void {
 		console.log("Available commands:");
-		for (const router of this.routers) {
+		for (const router of Object.values(this.routers)) {
 			router.printUsage();
 		}
 	}

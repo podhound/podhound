@@ -57,10 +57,7 @@ export class ApiAuthenticator {
 	): Promise<Response> | Response {
 		const user = this.authenticateRequest(req);
 		if (!user || user.username !== expectedUsername) {
-			return new Response(JSON.stringify({ error: "Unauthorized" }), {
-				status: 401,
-				headers: { "Content-Type": "application/json" },
-			});
+			return Response.json({ error: "Unauthorized" }, { status: 401 });
 		}
 		return handler(user);
 	}

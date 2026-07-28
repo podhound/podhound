@@ -15,10 +15,7 @@ export class SubscriptionsApiRouter implements ApiSubRouter {
 	 */
 	public async handle(req: Request, parts: string[]): Promise<Response> {
 		if (parts.length !== 2) {
-			return new Response(JSON.stringify({ error: "Not Found" }), {
-				status: 404,
-				headers: { "Content-Type": "application/json" },
-			});
+			return Response.json({ error: "Not Found" }, { status: 404 });
 		}
 
 		const [username] = parts;
@@ -31,7 +28,7 @@ export class SubscriptionsApiRouter implements ApiSubRouter {
 
 		const handler = routes[req.method];
 		if (!handler) {
-			return new Response("Method Not Allowed", { status: 405 });
+			return Response.json({ error: "Method Not Allowed" }, { status: 405 });
 		}
 
 		return this.authenticator.withAuth(req, username, handler);
@@ -42,10 +39,7 @@ export class SubscriptionsApiRouter implements ApiSubRouter {
 	 */
 	public getSubscriptions(user: User): Response {
 		const urls = this.subscriptionService.getSubscriptions(user.id);
-		return new Response(JSON.stringify(urls), {
-			status: 200,
-			headers: { "Content-Type": "application/json" },
-		});
+		return Response.json(urls);
 	}
 
 	/**
@@ -65,18 +59,12 @@ export class SubscriptionsApiRouter implements ApiSubRouter {
 				body.add || [],
 				body.remove || [],
 			);
-			return new Response(
-				JSON.stringify({
-					timestamp: Math.floor(Date.now() / 1000),
-					update_urls: [],
-				}),
-				{ status: 200, headers: { "Content-Type": "application/json" } },
-			);
-		} catch {
-			return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
-				status: 400,
-				headers: { "Content-Type": "application/json" },
+			return Response.json({
+				timestamp: Math.floor(Date.now() / 1000),
+				update_urls: [],
 			});
+		} catch {
+			return Response.json({ error: "Invalid JSON body" }, { status: 400 });
 		}
 	}
 }

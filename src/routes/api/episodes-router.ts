@@ -15,10 +15,7 @@ export class EpisodesApiRouter implements ApiSubRouter {
 	 */
 	public async handle(req: Request, parts: string[]): Promise<Response> {
 		if (parts.length !== 1) {
-			return new Response(JSON.stringify({ error: "Not Found" }), {
-				status: 404,
-				headers: { "Content-Type": "application/json" },
-			});
+			return Response.json({ error: "Not Found" }, { status: 404 });
 		}
 
 		const username = parts[0].replace(".json", "");
@@ -31,7 +28,7 @@ export class EpisodesApiRouter implements ApiSubRouter {
 
 		const handler = routes[req.method];
 		if (!handler) {
-			return new Response("Method Not Allowed", { status: 405 });
+			return Response.json({ error: "Method Not Allowed" }, { status: 405 });
 		}
 
 		return this.authenticator.withAuth(req, username, handler);
@@ -42,9 +39,8 @@ export class EpisodesApiRouter implements ApiSubRouter {
 	 */
 	private getEpisodes(req: Request, user: User): Response {
 		const url = new URL(req.url);
-		const sinceParam = url.searchParams.get("since");
+		const sinceTimestamp = Number(url.searchParams.get("since")) || 0;
 		const podcastParam = url.searchParams.get("podcast");
-		const sinceTimestamp = sinceParam ? parseInt(sinceParam, 10) || 0 : 0;
 
 		const actions = this.episodeService.getEpisodeActions(
 			user.id,
@@ -52,10 +48,10 @@ export class EpisodesApiRouter implements ApiSubRouter {
 			podcastParam,
 		);
 
-		return new Response(
-			JSON.stringify({ actions, timestamp: Math.floor(Date.now() / 1000) }),
-			{ status: 200, headers: { "Content-Type": "application/json" } },
-		);
+		return Response.json({
+			actions,
+			timestamp: Math.floor(Date.now() / 1000),
+		});
 	}
 
 	/**
@@ -65,25 +61,19 @@ export class EpisodesApiRouter implements ApiSubRouter {
 		try {
 			const actions = (await req.json()) as EpisodeActionPayload[];
 			if (!Array.isArray(actions)) {
-				return new Response(
-					JSON.stringify({ error: "Payload must be an array" }),
-					{ status: 400, headers: { "Content-Type": "application/json" } },
+				return Response.json(
+					{ error: "Payload must be an array" },
+					{ status: 400 },
 				);
 			}
 
 			this.episodeService.saveEpisodeActions(user.id, actions);
-			return new Response(
-				JSON.stringify({
-					timestamp: Math.floor(Date.now() / 1000),
-					update_urls: [],
-				}),
-				{ status: 200, headers: { "Content-Type": "application/json" } },
-			);
-		} catch {
-			return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
-				status: 400,
-				headers: { "Content-Type": "application/json" },
+			return Response.json({
+				timestamp: Math.floor(Date.now() / 1000),
+				update_urls: [],
 			});
+		} catch {
+			return Response.json({ error: "Invalid JSON body" }, { status: 400 });
 		}
 	}
 }

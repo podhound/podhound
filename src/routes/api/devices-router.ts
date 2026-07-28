@@ -16,10 +16,7 @@ export class DevicesApiRouter implements ApiSubRouter {
 		} else if (parts.length === 2) {
 			username = parts[0];
 		} else {
-			return new Response(JSON.stringify({ error: "Not Found" }), {
-				status: 404,
-				headers: { "Content-Type": "application/json" },
-			});
+			return Response.json({ error: "Not Found" }, { status: 404 });
 		}
 
 		const routes: Record<string, (user: User) => Response> = {
@@ -29,7 +26,7 @@ export class DevicesApiRouter implements ApiSubRouter {
 
 		const handler = routes[req.method];
 		if (!handler) {
-			return new Response("Method Not Allowed", { status: 405 });
+			return Response.json({ error: "Method Not Allowed" }, { status: 405 });
 		}
 
 		return this.authenticator.withAuth(req, username, handler);
@@ -39,17 +36,14 @@ export class DevicesApiRouter implements ApiSubRouter {
 	 * Retrieves the devices for the authenticated user.
 	 */
 	private getDevices(): Response {
-		return new Response(
-			JSON.stringify([
-				{
-					id: "antennapod",
-					caption: "AntennaPod",
-					type: "phone",
-					subscriptions: 0,
-				},
-			]),
-			{ status: 200, headers: { "Content-Type": "application/json" } },
-		);
+		return Response.json([
+			{
+				id: "antennapod",
+				caption: "AntennaPod",
+				type: "phone",
+				subscriptions: 0,
+			},
+		]);
 	}
 
 	/**

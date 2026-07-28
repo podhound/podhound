@@ -25,10 +25,7 @@ export class AuthApiRouter implements ApiSubRouter {
 			}
 		}
 
-		return new Response(JSON.stringify({ error: "Not Found" }), {
-			status: 404,
-			headers: { "Content-Type": "application/json" },
-		});
+		return Response.json({ error: "Not Found" }, { status: 404 });
 	}
 
 	/**
@@ -50,18 +47,16 @@ export class AuthApiRouter implements ApiSubRouter {
 		}
 
 		if (!user || user.username !== urlUsername) {
-			return new Response(JSON.stringify({ error: "Unauthorized" }), {
-				status: 401,
-				headers: { "Content-Type": "application/json" },
-			});
+			return Response.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
-		return new Response(JSON.stringify({ success: true }), {
-			status: 200,
-			headers: {
-				"Content-Type": "application/json",
-				"Set-Cookie": `session_user=${user.username}; Path=/; HttpOnly; SameSite=Lax`,
+		return Response.json(
+			{ success: true },
+			{
+				headers: {
+					"Set-Cookie": `session_user=${user.username}; Path=/; HttpOnly; SameSite=Lax`,
+				},
 			},
-		});
+		);
 	}
 }
