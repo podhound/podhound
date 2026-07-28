@@ -11,7 +11,7 @@ docker run -d \
   -v podhound_data:/app/data \
   -e PORT=8080 \
   -e DATABASE_PATH=/app/data/podhound.db \
-  -e AUTO_REGISTER=false \
+  -e AUTO_REGISTER=true \
   --restart unless-stopped \
   skubakh/podhound:latest
 ```
@@ -32,7 +32,7 @@ services:
     environment:
       - PORT=8080
       - DATABASE_PATH=/app/data/podhound.db
-      - AUTO_REGISTER=false
+      - AUTO_REGISTER=true
     volumes:
       - podhound_data:/app/data
     restart: unless-stopped

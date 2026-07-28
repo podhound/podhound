@@ -25,6 +25,7 @@ RUN mkdir -p /app/data
 
 ENV PORT=8080
 ENV DATABASE_PATH=/app/data/podhound.db
+ENV AUTO_REGISTER=true
 EXPOSE 8080
 
 CMD ["/app/podhound"]
