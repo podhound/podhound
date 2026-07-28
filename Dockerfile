@@ -10,7 +10,7 @@ RUN bun install
 COPY src ./src
 
 # Compile standalone executable
-RUN bun build --compile --minify ./src/index.ts --outfile dist/podhound
+RUN bun build --compile --minify ./src/main.ts --outfile dist/podhound
 
 # Stage 2: Minimal runtime image
 FROM alpine:latest AS runner
