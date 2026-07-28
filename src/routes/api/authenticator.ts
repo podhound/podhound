@@ -1,13 +1,43 @@
 import type { Config } from "../../config";
 import type { AuthService, UserService } from "../../services";
 import type { User } from "../../types";
+import { RateLimiter } from "../../utils";
 
 export class ApiAuthenticator {
+	private rateLimiter: RateLimiter;
+
 	constructor(
 		private authService: AuthService,
 		private userService: UserService,
 		private config: Config,
-	) {}
+		rateLimiter?: RateLimiter,
+	) {
+		this.rateLimiter = rateLimiter || new RateLimiter(5, 60_000);
+	}
+
+	public getClientKey(req: Request): string {
+		const forwarded = req.headers.get("x-forwarded-for");
+		if (forwarded) {
+			return forwarded.split(",")[0].trim();
+		}
+		const realIp = req.headers.get("x-real-ip");
+		if (realIp) {
+			return realIp;
+		}
+		return "client_ip";
+	}
+
+	public isRateLimited(req: Request): boolean {
+		return this.rateLimiter.isRateLimited(this.getClientKey(req));
+	}
+
+	public recordFailedAttempt(req: Request): void {
+		this.rateLimiter.recordAttempt(this.getClientKey(req));
+	}
+
+	public resetRateLimit(req: Request): void {
+		this.rateLimiter.reset(this.getClientKey(req));
+	}
 
 	/**
 	 * Attempts to authenticate a user. If auto-registration is enabled and
@@ -27,24 +57,43 @@ export class ApiAuthenticator {
 	}
 
 	/**
-	 * Authenticates an HTTP request using Basic Auth headers.
+	 * Authenticates an HTTP request using Basic Auth headers or session Cookie.
 	 */
 	public authenticateRequest(req: Request): User | null {
-		const authHeader = req.headers.get("authorization");
-		if (!authHeader?.startsWith("Basic ")) {
+		if (this.isRateLimited(req)) {
 			return null;
 		}
 
-		try {
-			const credentials = atob(authHeader.substring(6));
-			const [username, password] = credentials.split(":");
-			if (!username || !password) {
+		const authHeader = req.headers.get("authorization");
+		if (authHeader?.startsWith("Basic ")) {
+			try {
+				const credentials = atob(authHeader.substring(6));
+				const [username, password] = credentials.split(":");
+				if (username && password) {
+					const user = this.authenticateOrRegister(username, password);
+					if (user) {
+						this.resetRateLimit(req);
+						return user;
+					}
+					this.recordFailedAttempt(req);
+					return null;
+				}
+			} catch {
+				this.recordFailedAttempt(req);
 				return null;
 			}
-			return this.authenticateOrRegister(username, password);
-		} catch {
-			return null;
 		}
+
+		const cookieHeader = req.headers.get("cookie");
+		if (cookieHeader) {
+			const match = cookieHeader.match(/session_user=([^;]+)/);
+			if (match) {
+				const username = decodeURIComponent(match[1]);
+				return this.userService.getUserByUsername(username);
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -55,6 +104,13 @@ export class ApiAuthenticator {
 		expectedUsername: string,
 		handler: (user: User) => Promise<Response> | Response,
 	): Promise<Response> | Response {
+		if (this.isRateLimited(req)) {
+			return Response.json(
+				{ error: "Too Many Requests" },
+				{ status: 429, headers: { "Retry-After": "60" } },
+			);
+		}
+
 		const user = this.authenticateRequest(req);
 		if (!user || user.username !== expectedUsername) {
 			return Response.json({ error: "Unauthorized" }, { status: 401 });

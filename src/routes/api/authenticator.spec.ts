@@ -68,6 +68,17 @@ describe("ApiAuthenticator", () => {
 		);
 	});
 
+	it("should authenticate with session Cookie", () => {
+		userServiceMock.getUserByUsername = mock(() => mockUser);
+		const req = new Request("http://localhost", {
+			headers: { Cookie: "session_user=alex" },
+		});
+
+		const user = authenticator.authenticateRequest(req);
+		expect(user).toEqual(mockUser);
+		expect(userServiceMock.getUserByUsername).toHaveBeenCalledWith("alex");
+	});
+
 	it("should return 401 response in withAuth if authentication fails", async () => {
 		const req = new Request("http://localhost");
 		const handler = mock(() => new Response("OK"));

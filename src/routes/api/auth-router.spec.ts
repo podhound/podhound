@@ -12,6 +12,9 @@ describe("AuthApiRouter", () => {
 		authenticatorMock = {
 			authenticateRequest: mock(() => null),
 			authenticateOrRegister: mock(() => null),
+			isRateLimited: mock(() => false),
+			recordFailedAttempt: mock(() => {}),
+			resetRateLimit: mock(() => {}),
 		} as unknown as ApiAuthenticator;
 
 		router = new AuthApiRouter(authenticatorMock);
@@ -21,6 +24,15 @@ describe("AuthApiRouter", () => {
 		const req = new Request("http://localhost/api/2/auth/login");
 		const res = await router.handle(req, ["invalid"]);
 		expect(res.status).toBe(404);
+	});
+
+	it("should return 429 when rate limited", async () => {
+		authenticatorMock.isRateLimited = mock(() => true);
+		const req = new Request("http://localhost/api/2/auth/alex/login.json", {
+			method: "POST",
+		});
+		const res = await router.handle(req, ["alex", "login.json"]);
+		expect(res.status).toBe(429);
 	});
 
 	it("should authenticate and set cookie on successful login", async () => {

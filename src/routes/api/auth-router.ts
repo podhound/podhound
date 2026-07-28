@@ -32,6 +32,13 @@ export class AuthApiRouter implements ApiSubRouter {
 	 * Handles login requests, managing session creation via cookies.
 	 */
 	private async login(req: Request, urlUsername: string): Promise<Response> {
+		if (this.authenticator.isRateLimited(req)) {
+			return Response.json(
+				{ error: "Too Many Requests" },
+				{ status: 429, headers: { "Retry-After": "60" } },
+			);
+		}
+
 		let user = this.authenticator.authenticateRequest(req);
 
 		if (!user && req.method === "POST") {
@@ -42,11 +49,17 @@ export class AuthApiRouter implements ApiSubRouter {
 						urlUsername,
 						body.password,
 					);
+					if (user) {
+						this.authenticator.resetRateLimit(req);
+					} else {
+						this.authenticator.recordFailedAttempt(req);
+					}
 				}
 			} catch {}
 		}
 
 		if (!user || user.username !== urlUsername) {
+			this.authenticator.recordFailedAttempt(req);
 			return Response.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
