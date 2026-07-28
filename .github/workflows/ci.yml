@@ -1,4 +1,4 @@
-name: CI
+name: CI & Auto Release
 
 on:
   push:
@@ -27,3 +27,50 @@ jobs:
 
       - name: Run Tests
         run: bun test
+
+  auto-release:
+    name: Auto Tag & Release
+    needs: lint-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check version and tag existence
+        id: check
+        run: |
+          VERSION=$(jq -r .version package.json)
+          TAG="v$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Tag $TAG already exists. Skipping release."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "New version $VERSION detected. Tag $TAG will be created."
+          fi
+
+      - name: Extract Release Notes from CHANGELOG
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          VERSION="${{ steps.check.outputs.version }}"
+          awk "/## \[$VERSION\]/{flag=1; next} /^## \[/{flag=0} flag" CHANGELOG.md > RELEASE_NOTES.md
+          if [ ! -s RELEASE_NOTES.md ]; then
+            echo "Release v$VERSION" > RELEASE_NOTES.md
+          fi
+
+      - name: Create GitHub Release and Tag
+        if: steps.check.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.check.outputs.tag }}
+          name: Release ${{ steps.check.outputs.tag }}
+          body_path: RELEASE_NOTES.md
+          token: ${{ secrets.GITHUB_TOKEN }}
