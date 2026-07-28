@@ -1,5 +1,6 @@
 import { Config } from "./config";
 import { createDatabase } from "./db";
+import { Logger } from "./logger";
 import { ApiRouter, CliRouter, HealthRouter } from "./routes";
 import {
 	AuthService,
@@ -11,7 +12,8 @@ import type { App } from "./types";
 
 export function createApp(): App {
 	const config = new Config();
-	const db = createDatabase(config);
+	const logger = new Logger(config.logLevel);
+	const db = createDatabase(config, logger);
 
 	const userService = new UserService(db);
 	const authService = new AuthService(userService);
@@ -28,5 +30,5 @@ export function createApp(): App {
 	const health = new HealthRouter();
 	const cli = new CliRouter(userService);
 
-	return { config, api, cli, health };
+	return { config, logger, api, cli, health };
 }

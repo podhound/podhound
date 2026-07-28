@@ -1,6 +1,6 @@
 import { createApp } from "./bootstrap";
 
-const { config, api, cli, health } = createApp();
+const { config, logger, api, cli, health } = createApp();
 const args = process.argv.slice(2);
 
 // If arguments are passed, run CLI mode and exit
@@ -27,6 +27,6 @@ const server = Bun.serve({
 	},
 });
 
-console.log(
+logger.info(
 	`[Podhound 🐶] Server is listening on http://localhost:${server.port}`,
 );
