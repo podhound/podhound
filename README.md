@@ -6,6 +6,7 @@
 [![CI Pipeline](https://github.com/svyatoslav-kubakh/podhound/actions/workflows/ci.yml/badge.svg)](https://github.com/svyatoslav-kubakh/podhound/actions)
 [![Latest Release](https://img.shields.io/github/v/release/svyatoslav-kubakh/podhound)](https://github.com/svyatoslav-kubakh/podhound/releases)
 [![Docker Pulls](https://img.shields.io/docker/pulls/skubakh/podhound?logo=docker)](https://hub.docker.com/r/skubakh/podhound)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Donate-ff5e5b?logo=ko-fi&logoColor=white)](https://ko-fi.com/skubakh)
 
 <img src="assets/logo.png" alt="Podhound Logo" width="120" align="right">
 
