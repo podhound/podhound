@@ -9,6 +9,24 @@ export class CliRouter {
 	constructor(userService: UserService) {
 		this.routers = [new UserCliRouter(userService)];
 	}
+
+	/**
+	 * Executes CLI with error handling. Returns exit code (0 = success, 1 = error).
+	 */
+	public async run(args: string[]): Promise<number> {
+		try {
+			await this.handle(args);
+			return 0;
+		} catch (e: unknown) {
+			if (e instanceof Error) {
+				console.error(e.message);
+			} else {
+				console.error(e);
+			}
+			return 1;
+		}
+	}
+
 	/**
 	 * Main CLI entry point. Parses arguments and routes to the appropriate domain handler.
 	 */
