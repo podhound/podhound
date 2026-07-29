@@ -20,5 +20,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with lint and test checks
 - Standalone binary compilation via `bun build --compile`
 
-[1.0.0]: https://github.com/svyatoslav-kubakh/podhound/releases/tag/v1.0.0
+[1.0.0]: https://github.com/podhound/podhound/releases/tag/v1.0.0
 

@@ -1,8 +1,8 @@
 # Podhound
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![CI](https://img.shields.io/github/actions/workflow/status/svyatoslav-kubakh/podhound/ci.yml?label=CI&logo=github)](https://github.com/svyatoslav-kubakh/podhound/actions)
-[![Release](https://img.shields.io/github/v/release/svyatoslav-kubakh/podhound?logo=github)](https://github.com/svyatoslav-kubakh/podhound/releases)
+[![CI](https://img.shields.io/github/actions/workflow/status/podhound/podhound/ci.yml?label=CI&logo=github)](https://github.com/podhound/podhound/actions)
+[![Release](https://img.shields.io/github/v/release/podhound/podhound?logo=github)](https://github.com/podhound/podhound/releases)
 [![Docker Pulls](https://img.shields.io/docker/pulls/skubakh/podhound?logo=docker)](https://hub.docker.com/r/skubakh/podhound)
 
 <img src="assets/logo.png" alt="Podhound Logo" width="120" align="right">
