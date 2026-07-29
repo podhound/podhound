@@ -12,6 +12,7 @@ export function createDatabase(config: Config, logger?: Logger): Database {
 
 	const db = new Database(config.databasePath);
 	db.exec("PRAGMA journal_mode = WAL;");
+	db.exec("PRAGMA synchronous = NORMAL;");
 
 	// Run SQLite migrations at startup
 	runMigrations(db, logger);
