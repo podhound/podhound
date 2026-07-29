@@ -28,5 +28,5 @@ const server = Bun.serve({
 });
 
 logger.info(
-	`[Podhound 🐶] Server is listening on http://localhost:${server.port}`,
+	`[Podhound 🐶] Server listening on http://localhost:${server.port}`,
 );

@@ -1,4 +1,4 @@
-# 🐾 Podhound
+# Podhound
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![CI](https://img.shields.io/github/actions/workflow/status/svyatoslav-kubakh/podhound/ci.yml?label=CI&logo=github)](https://github.com/svyatoslav-kubakh/podhound/actions)
@@ -7,37 +7,37 @@
 
 <img src="assets/logo.png" alt="Podhound Logo" width="120" align="right">
 
-**A lightweight, self-hosted podcast sync server.**
+Simple self-hosted podcast sync server ([gPodder API v2](https://gpoddernet.readthedocs.io/en/latest/api/index.html) compatible).
 
-It doggedly tracks your subscriptions and playback progress, so you can seamlessly pick up right where you left off on any device.
+Created this because I wanted a lightweight server to keep podcast subscriptions and playback progress synced between [AntennaPod](https://antennapod.org/) on my phone and desktop apps like [gPodder](https://gpodder.github.io/), without relying on third-party services.
 
 <br clear="all">
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠 Tech Stack
 
-* **Runtime & Package Manager:** [Bun](https://bun.sh/) (TypeScript v7) — instant startup with zero compilation delay.
-* **Database:** SQLite powered by the native high-performance `bun:sqlite` module (with `PRAGMA journal_mode = WAL` and `foreign_keys` enabled).
-* **API Protocol:** [gPodder API v2](https://gpoddernet.readthedocs.io/en/latest/api/index.html) — full compatibility with mobile clients like **AntennaPod**, gPodder Desktop, etc.
-* **Build / Compiling:** `bun build --compile` — compiles into **1 single standalone binary** with embedded `.sql` migrations without external runtime dependencies.
-* **Containerization:** Multi-stage `Dockerfile` based on lightweight Alpine Linux.
+* **Runtime:** [Bun](https://bun.sh/) (TypeScript)
+* **Database:** SQLite via native `bun:sqlite`
+* **API:** gPodder API v2 (works out of the box with [AntennaPod](https://antennapod.org/), [gPodder Desktop](https://gpodder.github.io/), etc.)
+* **Single Binary:** Built with `bun build --compile`
+* **Container:** Multi-stage Docker image (Alpine-based)
 
 ---
 
 ## 📚 Documentation
 
-For more detailed guides, check out the `docs/` directory:
+Check the `docs/` folder for guides and setup details:
 
-* [🐳 Docker Deployment Guide](docs/docker.md)
-* [💻 Developer Guide](docs/development.md)
-* [⚙️ Environment Variables](docs/environment.md)
-* [🔌 gPodder API v2 Endpoints](docs/api.md)
-* [📱 AntennaPod Setup Guide](docs/setup.md)
-* [⌨️ Command Line Interface (CLI)](docs/cli.md)
+* [Docker Deployment Guide](docs/docker.md)
+* [Developer Guide](docs/development.md)
+* [Environment Variables](docs/environment.md)
+* [gPodder API v2 Endpoints](docs/api.md)
+* [AntennaPod Setup Guide](docs/setup.md)
+* [CLI Usage](docs/cli.md)
 
 ---
 
 ## 📜 License
 
-Distributed under the [MIT](LICENSE) License.
+[MIT](LICENSE)
