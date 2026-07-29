@@ -4,6 +4,7 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/podhound/podhound/ci.yml?label=CI&logo=github)](https://github.com/podhound/podhound/actions)
 [![Release](https://img.shields.io/github/v/release/podhound/podhound?logo=github)](https://github.com/podhound/podhound/releases)
 [![Docker Pulls](https://img.shields.io/docker/pulls/skubakh/podhound?logo=docker)](https://hub.docker.com/r/skubakh/podhound)
+[![GHCR Container](https://img.shields.io/github/v/tag/podhound/podhound?label=ghcr.io&logo=docker&color=2496ED)](https://github.com/podhound/podhound/pkgs/container/podhound)
 
 <img src="assets/logo.png" alt="Podhound Logo" width="120" align="right">
 
