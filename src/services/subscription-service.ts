@@ -10,6 +10,22 @@ export class SubscriptionService {
 		return rows.map((r) => r.podcast_url);
 	}
 
+	public setSubscriptions(userId: number, urls: string[]): void {
+		this.db.transaction(() => {
+			this.db
+				.prepare("DELETE FROM subscriptions WHERE user_id = ?")
+				.run(userId);
+			const insertStmt = this.db.prepare(
+				"INSERT OR IGNORE INTO subscriptions (user_id, podcast_url) VALUES (?, ?)",
+			);
+			for (const url of urls) {
+				if (url) {
+					insertStmt.run(userId, url);
+				}
+			}
+		})();
+	}
+
 	public updateSubscriptions(
 		userId: number,
 		addList: string[],

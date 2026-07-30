@@ -4,6 +4,7 @@ import { createDatabase } from "../src/db";
 import { ApiRouter } from "../src/routes";
 import {
 	AuthService,
+	DeviceService,
 	EpisodeService,
 	SubscriptionService,
 	UserService,
@@ -13,9 +14,10 @@ const config = new Config({ DATABASE_PATH: ":memory:", AUTO_REGISTER: "true" });
 const db = createDatabase(config);
 
 const userService = new UserService(db);
-const authService = new AuthService(userService);
+const authService = new AuthService(userService, db);
 const subService = new SubscriptionService(db);
 const epService = new EpisodeService(db);
+const deviceService = new DeviceService(db);
 
 const api = new ApiRouter(
 	authService,
@@ -23,6 +25,7 @@ const api = new ApiRouter(
 	config,
 	subService,
 	epService,
+	deviceService,
 );
 
 describe("Podhound Core Tests", () => {
@@ -35,6 +38,8 @@ describe("Podhound Core Tests", () => {
 		expect(names).toContain("users");
 		expect(names).toContain("subscriptions");
 		expect(names).toContain("episode_actions");
+		expect(names).toContain("sessions");
+		expect(names).toContain("devices");
 		expect(names).toContain("_migrations");
 	});
 
@@ -94,7 +99,7 @@ describe("Podhound Core Tests", () => {
 		expect(listData).toEqual(["https://feed.example.com/podcast.xml"]);
 	});
 
-	it("should record and query episode actions", async () => {
+	it("should record and query episode actions via episodes and inc-actions endpoints", async () => {
 		const basicAuth = btoa("epuser:password123");
 
 		// Send episode action
@@ -111,7 +116,7 @@ describe("Podhound Core Tests", () => {
 					action: "play",
 					position: 150,
 					total: 1800,
-					timestamp: 1700000000,
+					timestamp: "2024-01-01T12:00:00Z",
 				},
 			]),
 		});
@@ -120,9 +125,9 @@ describe("Podhound Core Tests", () => {
 		expect(postRes).not.toBeNull();
 		expect(postRes.status).toBe(200);
 
-		// Query episode actions
+		// Query episode actions via standard /api/2/inc-actions/<username>.json
 		const getReq = new Request(
-			"http://localhost/api/2/episodes/epuser.json?since=1699999999",
+			"http://localhost/api/2/inc-actions/epuser.json?since=1600000000",
 			{
 				method: "GET",
 				headers: {
@@ -140,5 +145,43 @@ describe("Podhound Core Tests", () => {
 			"https://feed.example.com/podcast.xml",
 		);
 		expect(getData.actions[0].position).toBe(150);
+	});
+
+	it("should register and list devices", async () => {
+		const basicAuth = btoa("devuser:password123");
+
+		// Register device
+		const postReq = new Request(
+			"http://localhost/api/2/devices/devuser/phone.json",
+			{
+				method: "POST",
+				headers: {
+					Authorization: `Basic ${basicAuth}`,
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					caption: "My Phone",
+					type: "phone",
+				}),
+			},
+		);
+
+		const postRes = (await api.handle(postReq)) as Response;
+		expect(postRes.status).toBe(200);
+
+		// Get devices list
+		const getReq = new Request("http://localhost/api/2/devices/devuser.json", {
+			method: "GET",
+			headers: {
+				Authorization: `Basic ${basicAuth}`,
+			},
+		});
+
+		const getRes = (await api.handle(getReq)) as Response;
+		expect(getRes.status).toBe(200);
+		const devices = (await getRes.json()) as { id: string; caption: string }[];
+		expect(devices).toHaveLength(1);
+		expect(devices[0].id).toBe("phone");
+		expect(devices[0].caption).toBe("My Phone");
 	});
 });

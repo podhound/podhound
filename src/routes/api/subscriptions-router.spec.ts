@@ -17,6 +17,7 @@ describe("SubscriptionsApiRouter", () => {
 
 		subServiceMock = {
 			getSubscriptions: mock(() => ["http://feed.xml"]),
+			setSubscriptions: mock(() => {}),
 			updateSubscriptions: mock(() => {}),
 		} as unknown as SubscriptionService;
 
@@ -60,6 +61,24 @@ describe("SubscriptionsApiRouter", () => {
 			["http://new.xml"],
 			[],
 		);
+	});
+
+	it("should set subscriptions on PUT", async () => {
+		const req = new Request(
+			"http://localhost/api/2/subscriptions/alex/device.json",
+			{
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(["http://feed1.xml", "http://feed2.xml"]),
+			},
+		);
+		const res = await router.handle(req, ["alex", "device.json"]);
+
+		expect(res.status).toBe(200);
+		expect(subServiceMock.setSubscriptions).toHaveBeenCalledWith(1, [
+			"http://feed1.xml",
+			"http://feed2.xml",
+		]);
 	});
 
 	it("should return 400 on invalid JSON body", async () => {

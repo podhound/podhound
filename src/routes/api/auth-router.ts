@@ -1,10 +1,14 @@
+import type { AuthService } from "../../services";
 import type { ApiSubRouter } from "../../types";
 import type { ApiAuthenticator } from "./authenticator";
 
 export class AuthApiRouter implements ApiSubRouter {
 	public readonly domain = "auth";
 
-	constructor(private authenticator: ApiAuthenticator) {}
+	constructor(
+		private authenticator: ApiAuthenticator,
+		private authService: AuthService,
+	) {}
 
 	/**
 	 * Main handler for the 'auth' domain.
@@ -63,11 +67,13 @@ export class AuthApiRouter implements ApiSubRouter {
 			return Response.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
+		const sessionId = this.authService.createSession(user.id);
+
 		return Response.json(
 			{ success: true },
 			{
 				headers: {
-					"Set-Cookie": `session_user=${user.username}; Path=/; HttpOnly; SameSite=Lax`,
+					"Set-Cookie": `sessionid=${sessionId}; Path=/; HttpOnly; SameSite=Lax`,
 				},
 			},
 		);

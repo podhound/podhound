@@ -4,6 +4,7 @@ import { Logger } from "./logger";
 import { ApiRouter, CliRouter, HealthRouter } from "./routes";
 import {
 	AuthService,
+	DeviceService,
 	EpisodeService,
 	SubscriptionService,
 	UserService,
@@ -16,9 +17,10 @@ export function createApp(): App {
 	const db = createDatabase(config, logger);
 
 	const userService = new UserService(db);
-	const authService = new AuthService(userService);
+	const authService = new AuthService(userService, db);
 	const subService = new SubscriptionService(db);
 	const epService = new EpisodeService(db);
+	const deviceService = new DeviceService(db);
 
 	const api = new ApiRouter(
 		authService,
@@ -26,6 +28,7 @@ export function createApp(): App {
 		config,
 		subService,
 		epService,
+		deviceService,
 	);
 	const health = new HealthRouter();
 	const cli = new CliRouter(userService);

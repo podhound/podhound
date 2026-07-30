@@ -14,6 +14,8 @@ describe("ApiAuthenticator", () => {
 	beforeEach(() => {
 		authServiceMock = {
 			authenticate: mock(() => null),
+			getUserBySessionId: mock(() => null),
+			createSession: mock(() => "mock-session-id"),
 		} as unknown as AuthService;
 
 		userServiceMock = {
@@ -69,14 +71,16 @@ describe("ApiAuthenticator", () => {
 	});
 
 	it("should authenticate with session Cookie", () => {
-		userServiceMock.getUserByUsername = mock(() => mockUser);
+		authServiceMock.getUserBySessionId = mock(() => mockUser);
 		const req = new Request("http://localhost", {
-			headers: { Cookie: "session_user=alex" },
+			headers: { Cookie: "sessionid=mock-session-id" },
 		});
 
 		const user = authenticator.authenticateRequest(req);
 		expect(user).toEqual(mockUser);
-		expect(userServiceMock.getUserByUsername).toHaveBeenCalledWith("alex");
+		expect(authServiceMock.getUserBySessionId).toHaveBeenCalledWith(
+			"mock-session-id",
+		);
 	});
 
 	it("should return 401 response in withAuth if authentication fails", async () => {

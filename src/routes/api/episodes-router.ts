@@ -59,10 +59,25 @@ export class EpisodesApiRouter implements ApiSubRouter {
 	 */
 	private async updateEpisodes(req: Request, user: User): Promise<Response> {
 		try {
-			const actions = (await req.json()) as EpisodeActionPayload[];
-			if (!Array.isArray(actions)) {
+			const body = await req.json();
+			let actions: EpisodeActionPayload[] = [];
+
+			if (Array.isArray(body)) {
+				actions = body as EpisodeActionPayload[];
+			} else if (body && typeof body === "object") {
+				if (Array.isArray(body.actions)) {
+					actions = body.actions as EpisodeActionPayload[];
+				} else if (body.podcast && body.episode) {
+					actions = [body as EpisodeActionPayload];
+				} else {
+					return Response.json(
+						{ error: "Payload must be an array or action object" },
+						{ status: 400 },
+					);
+				}
+			} else {
 				return Response.json(
-					{ error: "Payload must be an array" },
+					{ error: "Invalid payload format" },
 					{ status: 400 },
 				);
 			}

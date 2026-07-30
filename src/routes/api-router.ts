@@ -1,6 +1,7 @@
 import type { Config } from "../config";
 import type {
 	AuthService,
+	DeviceService,
 	EpisodeService,
 	SubscriptionService,
 	UserService,
@@ -23,6 +24,7 @@ export class ApiRouter {
 		config: Config,
 		subService: SubscriptionService,
 		epService: EpisodeService,
+		deviceService: DeviceService,
 	) {
 		const authenticator = new ApiAuthenticator(
 			authService,
@@ -30,16 +32,20 @@ export class ApiRouter {
 			config,
 		);
 
+		const epRouter = new EpisodesApiRouter(authenticator, epService);
 		const routerList: ApiSubRouter[] = [
-			new AuthApiRouter(authenticator),
-			new DevicesApiRouter(authenticator),
+			new AuthApiRouter(authenticator, authService),
+			new DevicesApiRouter(authenticator, deviceService),
 			new SubscriptionsApiRouter(authenticator, subService),
-			new EpisodesApiRouter(authenticator, epService),
+			epRouter,
 		];
 
-		this.routers = Object.fromEntries(
-			routerList.map((router) => [router.domain, router]),
-		);
+		this.routers = {
+			...Object.fromEntries(
+				routerList.map((router) => [router.domain, router]),
+			),
+			"inc-actions": epRouter,
+		};
 	}
 
 	/**

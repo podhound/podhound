@@ -86,10 +86,15 @@ export class ApiAuthenticator {
 
 		const cookieHeader = req.headers.get("cookie");
 		if (cookieHeader) {
-			const match = cookieHeader.match(/session_user=([^;]+)/);
+			const match =
+				cookieHeader.match(/sessionid=([^;]+)/) ||
+				cookieHeader.match(/session_user=([^;]+)/);
 			if (match) {
-				const username = decodeURIComponent(match[1]);
-				return this.userService.getUserByUsername(username);
+				const sessionId = decodeURIComponent(match[1]);
+				const user = this.authService.getUserBySessionId(sessionId);
+				if (user) {
+					return user;
+				}
 			}
 		}
 

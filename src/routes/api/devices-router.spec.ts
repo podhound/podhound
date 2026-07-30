@@ -1,10 +1,12 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
+import type { DeviceService } from "../../services";
 import type { User } from "../../types";
 import type { ApiAuthenticator } from "./authenticator";
 import { DevicesApiRouter } from "./devices-router";
 
 describe("DevicesApiRouter", () => {
 	let authenticatorMock: ApiAuthenticator;
+	let deviceServiceMock: DeviceService;
 	let router: DevicesApiRouter;
 	const mockUser: User = { id: 1, username: "alex", password_hash: "hash" };
 
@@ -13,7 +15,19 @@ describe("DevicesApiRouter", () => {
 			withAuth: mock((_req, _user, handler) => handler(mockUser)),
 		} as unknown as ApiAuthenticator;
 
-		router = new DevicesApiRouter(authenticatorMock);
+		deviceServiceMock = {
+			getDevices: mock(() => [
+				{
+					id: "antennapod",
+					caption: "AntennaPod",
+					type: "phone",
+					subscriptions: 0,
+				},
+			]),
+			saveDevice: mock(() => {}),
+		} as unknown as DeviceService;
+
+		router = new DevicesApiRouter(authenticatorMock, deviceServiceMock);
 	});
 
 	it("should return 404 for invalid parts", async () => {

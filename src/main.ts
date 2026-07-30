@@ -12,6 +12,15 @@ const server = Bun.serve({
 	port: config.port,
 	async fetch(req: Request): Promise<Response> {
 		const url = new URL(req.url);
+		let bodyContent = "";
+		if (req.method === "POST" || req.method === "PUT") {
+			try {
+				bodyContent = await req.clone().text();
+			} catch {}
+		}
+		logger.info(
+			`[HTTP] ${req.method} ${url.pathname}${url.search}${bodyContent ? ` BODY: ${bodyContent}` : ""}`,
+		);
 
 		const healthResponse = health.handle(url.pathname);
 		if (healthResponse) {
@@ -20,9 +29,11 @@ const server = Bun.serve({
 
 		const apiResponse = await api.handle(req);
 		if (apiResponse) {
+			logger.info(`[HTTP ${apiResponse.status}] ${req.method} ${url.pathname}`);
 			return apiResponse;
 		}
 
+		logger.warn(`[HTTP 404] ${req.method} ${url.pathname}`);
 		return Response.json({ error: "Not Found" }, { status: 404 });
 	},
 });

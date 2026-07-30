@@ -5,6 +5,7 @@ import type { ApiAuthenticator } from "./authenticator";
 
 describe("AuthApiRouter", () => {
 	let authenticatorMock: ApiAuthenticator;
+	let authServiceMock: AuthService;
 	let router: AuthApiRouter;
 	const mockUser: User = { id: 1, username: "alex", password_hash: "hash" };
 
@@ -17,7 +18,11 @@ describe("AuthApiRouter", () => {
 			resetRateLimit: mock(() => {}),
 		} as unknown as ApiAuthenticator;
 
-		router = new AuthApiRouter(authenticatorMock);
+		authServiceMock = {
+			createSession: mock(() => "sess_123"),
+		} as unknown as AuthService;
+
+		router = new AuthApiRouter(authenticatorMock, authServiceMock);
 	});
 
 	it("should return 404 for invalid parts", async () => {
@@ -44,7 +49,7 @@ describe("AuthApiRouter", () => {
 		const res = await router.handle(req, ["alex", "login.json"]);
 
 		expect(res.status).toBe(200);
-		expect(res.headers.get("Set-Cookie")).toContain("session_user=alex");
+		expect(res.headers.get("Set-Cookie")).toContain("sessionid=sess_123");
 		const data = (await res.json()) as { success: boolean };
 		expect(data.success).toBe(true);
 	});
