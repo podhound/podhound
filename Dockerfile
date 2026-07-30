@@ -16,7 +16,7 @@ RUN bun build --compile --minify ./src/main.ts --outfile dist/podhound
 FROM alpine:latest AS runner
 WORKDIR /app
 
-RUN apk add --no-cache ca-certificates tzdata
+RUN apk add --no-cache ca-certificates tzdata gcompat libc6-compat
 
 COPY --from=builder /app/dist/podhound /app/podhound
 
