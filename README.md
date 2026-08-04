@@ -1,5 +1,7 @@
 # Podhound
 
+[![Website](https://img.shields.io/badge/Website-podhound.github.io-blue?logo=googlechrome&logoColor=white)](https://podhound.github.io)
+[![Config Generator](https://img.shields.io/badge/Docker_Config-Interactive_Generator-success?logo=docker&logoColor=white)](https://podhound.github.io/config/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![CI](https://img.shields.io/github/actions/workflow/status/podhound/podhound/ci.yml?label=CI&logo=github)](https://github.com/podhound/podhound/actions)
 [![Release](https://img.shields.io/github/v/release/podhound/podhound?logo=github)](https://github.com/podhound/podhound/releases)
@@ -8,11 +10,42 @@
 
 <img src="assets/logo.png" alt="Podhound Logo" width="120" align="right">
 
-Simple self-hosted podcast sync server ([gPodder API v2](https://gpoddernet.readthedocs.io/en/latest/api/index.html) compatible).
+A simple, lightweight self-hosted podcast sync server implementing the [gPodder API v2](https://gpoddernet.readthedocs.io/en/latest/api/index.html).
 
-Created this because I wanted a lightweight server to keep podcast subscriptions and playback progress synced between [AntennaPod](https://antennapod.org/) on my phone and desktop apps like [gPodder](https://gpodder.github.io/), without relying on third-party services.
+Podhound doggedly tracks your podcast subscriptions and playback progress across devices. Fully compatible with [AntennaPod](https://antennapod.org/), [gPodder Desktop](https://gpodder.github.io/), [Kasts](https://apps.kde.org/kasts/), and other gPodder API v2 clients.
 
 <br clear="all">
+
+---
+
+## 🌐 Quick Links & Resources
+
+* 📖 **Official Website & Docs:** [podhound.github.io](https://podhound.github.io)
+* 🛠️ **Interactive Config Generator:** [podhound.github.io/config](https://podhound.github.io/config/)
+* 📱 **Compatible Clients Guide:** [podhound.github.io/docs/clients](https://podhound.github.io/docs/clients/)
+* ❓ **FAQ & Troubleshooting:** [podhound.github.io/docs/faq](https://podhound.github.io/docs/faq/)
+* 👤 **Author:** [Svyatoslav Kubakh](https://kubakh.name/)
+
+---
+
+## ⚡ Quick Start
+
+Run the container:
+
+```bash
+docker run -d \
+    --name podhound \
+    -p 8080:8080 \
+    -v podhound_data:/app/data \
+    -e PORT=8080 \
+    -e DATABASE_PATH=/app/data/podhound.db \
+    -e AUTO_REGISTER=false \
+    --restart unless-stopped \
+    skubakh/podhound:latest
+```
+
+> [!TIP]
+> Use our **[Interactive Config Generator](https://podhound.github.io/config/)** to generate custom `docker-compose.yml` or `docker run` commands with 1 click.
 
 ---
 
@@ -20,22 +53,18 @@ Created this because I wanted a lightweight server to keep podcast subscriptions
 
 * **Runtime:** [Bun](https://bun.sh/) (TypeScript)
 * **Database:** SQLite via native `bun:sqlite`
-* **API:** gPodder API v2 (works out of the box with [AntennaPod](https://antennapod.org/), [gPodder Desktop](https://gpodder.github.io/), etc.)
+* **API:** gPodder API v2
 * **Single Binary:** Built with `bun build --compile`
 * **Container:** Multi-stage Docker image (Alpine-based)
 
 ---
 
-## 📚 Documentation
+## 💖 Support & Sponsorship
 
-Check the `docs/` folder for guides and setup details:
+If Podhound saved you time or made your podcast self-hosting experience smoother, consider supporting the project:
 
-* [Docker Deployment Guide](docs/docker.md)
-* [Developer Guide](docs/development.md)
-* [Environment Variables](docs/environment.md)
-* [gPodder API v2 Endpoints](docs/api.md)
-* [AntennaPod Setup Guide](docs/setup.md)
-* [CLI Usage](docs/cli.md)
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Donate-ff5e5b?logo=ko-fi&logoColor=white)](https://ko-fi.com/skubakh)
+[![Donatello](https://img.shields.io/badge/Donatello-Donate-00ccaa?logo=heart&logoColor=white)](https://donatello.to/skubakh)
 
 ---
 
