@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Centralized TTL, session, rate-limiting, and GC interval parameters in `Config`.
 - Added load and memory benchmark test script (`bun run test:load`).
 
+### Docker Images
+- **Docker Hub:** [`skubakh/podhound:1.0.1`](https://hub.docker.com/r/skubakh/podhound/tags?name=1.0.1)
+- **GitHub Registry:** [`ghcr.io/podhound/podhound:1.0.1`](https://github.com/podhound/podhound/pkgs/container/podhound)
+
 ## [1.0.0] - 2026-07-30
 
 ### Added

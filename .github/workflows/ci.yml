@@ -65,6 +65,11 @@ jobs:
           if [ ! -s RELEASE_NOTES.md ]; then
             echo "Release v$VERSION" > RELEASE_NOTES.md
           fi
+          echo "" >> RELEASE_NOTES.md
+          echo "---" >> RELEASE_NOTES.md
+          echo "### 🐳 Docker Images" >> RELEASE_NOTES.md
+          echo "* **Docker Hub:** [\`skubakh/podhound:$VERSION\`](https://hub.docker.com/r/skubakh/podhound/tags?name=$VERSION)" >> RELEASE_NOTES.md
+          echo "* **GitHub Container Registry:** [\`ghcr.io/${{ github.repository_owner }}/podhound:$VERSION\`](https://github.com/${{ github.repository_owner }}/podhound/pkgs/container/podhound)" >> RELEASE_NOTES.md
 
       - name: Create GitHub Release and Tag
         if: steps.check.outputs.exists == 'false'
