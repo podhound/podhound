@@ -1,4 +1,4 @@
-import type { Database } from "bun:sqlite";
+import type { Database, Statement } from "bun:sqlite";
 
 export interface DeviceDto {
 	id: string;
@@ -8,7 +8,25 @@ export interface DeviceDto {
 }
 
 export class DeviceService {
-	constructor(private db: Database) {}
+	private saveDeviceStmt: Statement;
+	private getDevicesStmt: Statement;
+	private countSubscriptionsStmt: Statement;
+
+	constructor(private db: Database) {
+		this.saveDeviceStmt = this.db.prepare(
+			`INSERT INTO devices (user_id, device_id, caption, type)
+			 VALUES (?, ?, ?, ?)
+			 ON CONFLICT(user_id, device_id) DO UPDATE SET caption = excluded.caption, type = excluded.type`,
+		);
+		this.getDevicesStmt = this.db.prepare(
+			`SELECT d.device_id as id, d.caption, d.type,
+			 (SELECT COUNT(*) FROM subscriptions WHERE user_id = d.user_id) as subscriptions
+			 FROM devices d WHERE d.user_id = ?`,
+		);
+		this.countSubscriptionsStmt = this.db.prepare(
+			"SELECT COUNT(*) as count FROM subscriptions WHERE user_id = ?",
+		);
+	}
 
 	public saveDevice(
 		userId: number,
@@ -16,33 +34,21 @@ export class DeviceService {
 		caption: string,
 		type: string,
 	): void {
-		this.db
-			.prepare(
-				`INSERT INTO devices (user_id, device_id, caption, type)
-				 VALUES (?, ?, ?, ?)
-				 ON CONFLICT(user_id, device_id) DO UPDATE SET caption = excluded.caption, type = excluded.type`,
-			)
-			.run(userId, deviceId, caption || deviceId, type || "phone");
+		this.saveDeviceStmt.run(
+			userId,
+			deviceId,
+			caption || deviceId,
+			type || "phone",
+		);
 	}
 
 	public getDevices(userId: number): DeviceDto[] {
-		const devices = this.db
-			.prepare(
-				`SELECT d.device_id as id, d.caption, d.type,
-				 (SELECT COUNT(*) FROM subscriptions WHERE user_id = d.user_id) as subscriptions
-				 FROM devices d WHERE d.user_id = ?`,
-			)
-			.all(userId) as DeviceDto[];
+		const devices = this.getDevicesStmt.all(userId) as DeviceDto[];
 
 		if (devices.length === 0) {
 			const subCount =
-				(
-					this.db
-						.prepare(
-							"SELECT COUNT(*) as count FROM subscriptions WHERE user_id = ?",
-						)
-						.get(userId) as { count: number }
-				)?.count || 0;
+				(this.countSubscriptionsStmt.get(userId) as { count: number })?.count ||
+				0;
 
 			return [
 				{

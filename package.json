@@ -1,6 +1,6 @@
 {
   "name": "podhound",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "module": "src/main.ts",
   "type": "module",
   "private": true,
@@ -10,7 +10,8 @@
     "test": "bun test",
     "lint": "biome check src test",
     "lint:fix": "biome check --write --unsafe src test",
-    "build": "bun build --compile --minify ./src/main.ts --outfile dist/podhound"
+    "build": "bun build --compile --minify ./src/main.ts --outfile dist/podhound",
+    "test:load": "bun test/load-benchmark.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.5",

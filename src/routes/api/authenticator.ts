@@ -12,7 +12,9 @@ export class ApiAuthenticator {
 		private config: Config,
 		rateLimiter?: RateLimiter,
 	) {
-		this.rateLimiter = rateLimiter || new RateLimiter(5, 60_000);
+		this.rateLimiter =
+			rateLimiter ||
+			new RateLimiter(config.rateLimitMaxAttempts, config.rateLimitWindowMs);
 	}
 
 	public getClientKey(req: Request): string {

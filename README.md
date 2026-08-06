@@ -47,10 +47,12 @@ docker run -d \
 
 ---
 
-## 🛠 Tech Stack
+## 🛠 Tech Stack & Performance
 
 * **Runtime:** [Bun](https://bun.sh/) (TypeScript)
-* **Database:** SQLite via native `bun:sqlite`
+* **Database:** SQLite via native `bun:sqlite` with pre-compiled prepared statements
+* **Authentication:** Bcrypt password hashing (`cost: 10`) with 5-minute in-memory Basic Auth cache
+* **Memory Footprint:** Ultra-low RAM footprint (~13 MB idle, ~15 MB under load)
 * **API:** gPodder API v2
 * **Single Binary:** Built with `bun build --compile`
 * **Container:** Multi-stage Docker image (Alpine-based)

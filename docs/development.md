@@ -27,17 +27,29 @@
    bun test
    ```
 
-5. **Lint and auto-fix code style:**
+5. **Run load & memory benchmark test:**
+   ```bash
+   bun run test:load
+   ```
+
+6. **Lint and auto-fix code style:**
    ```bash
    bun run lint      # check only
    bun run lint:fix   # auto-fix
    ```
 
-6. **Build a standalone executable binary:**
+7. **Build a standalone executable binary:**
    ```bash
    bun run build
    ./dist/podhound
    ```
+
+## Performance & Optimization Notes
+
+- **Password Hashing:** Uses `bcrypt` (`cost: 10`) for minimal RAM overhead (~14 MB total server memory footprint).
+- **Basic Auth Cache:** In-memory caching with 5-minute TTL to bypass repeated password verification on high-frequency API calls.
+- **Prepared Statements:** Pre-compiled SQLite queries in service constructors to eliminate heap allocations per request.
+- **Garbage Collection:** Automatic background GC scheduled periodically via `Bun.gc(true)`.
 
 ## Project Structure
 

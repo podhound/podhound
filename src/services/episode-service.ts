@@ -1,8 +1,23 @@
-import type { Database } from "bun:sqlite";
+import type { Database, Statement } from "bun:sqlite";
 import type { EpisodeActionPayload } from "../types";
 
 export class EpisodeService {
-	constructor(private db: Database) {}
+	private getEpisodeActionsStmt: Statement;
+	private getEpisodeActionsWithPodcastStmt: Statement;
+	private insertEpisodeActionStmt: Statement;
+
+	constructor(private db: Database) {
+		this.getEpisodeActionsStmt = this.db.prepare(
+			"SELECT podcast_url as podcast, episode_url as episode, action, position, total, timestamp, device, started, guid FROM episode_actions WHERE user_id = ? AND timestamp >= ? ORDER BY timestamp ASC",
+		);
+		this.getEpisodeActionsWithPodcastStmt = this.db.prepare(
+			"SELECT podcast_url as podcast, episode_url as episode, action, position, total, timestamp, device, started, guid FROM episode_actions WHERE user_id = ? AND timestamp >= ? AND podcast_url = ? ORDER BY timestamp ASC",
+		);
+		this.insertEpisodeActionStmt = this.db.prepare(`
+        INSERT INTO episode_actions (user_id, podcast_url, episode_url, action, position, total, timestamp, device, started, guid)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+	}
 
 	private normalizeTimestamp(input?: number | string): number {
 		if (typeof input === "number") {
@@ -26,17 +41,17 @@ export class EpisodeService {
 		sinceTimestamp: number,
 		podcastParam: string | null,
 	): EpisodeActionPayload[] {
-		let query =
-			"SELECT podcast_url as podcast, episode_url as episode, action, position, total, timestamp, device, started, guid FROM episode_actions WHERE user_id = ? AND timestamp >= ?";
-		const params: (string | number)[] = [userId, sinceTimestamp];
-
 		if (podcastParam) {
-			query += " AND podcast_url = ?";
-			params.push(podcastParam);
+			return this.getEpisodeActionsWithPodcastStmt.all(
+				userId,
+				sinceTimestamp,
+				podcastParam,
+			) as EpisodeActionPayload[];
 		}
-
-		query += " ORDER BY timestamp ASC";
-		return this.db.prepare(query).all(...params) as EpisodeActionPayload[];
+		return this.getEpisodeActionsStmt.all(
+			userId,
+			sinceTimestamp,
+		) as EpisodeActionPayload[];
 	}
 
 	public saveEpisodeActions(
@@ -45,16 +60,11 @@ export class EpisodeService {
 	): void {
 		const nowTimestamp = Math.floor(Date.now() / 1000);
 		this.db.transaction(() => {
-			const stmt = this.db.prepare(`
-        INSERT INTO episode_actions (user_id, podcast_url, episode_url, action, position, total, timestamp, device, started, guid)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `);
-
 			for (const act of actions) {
 				if (!act.podcast || !act.episode || !act.action) {
 					continue;
 				}
-				stmt.run(
+				this.insertEpisodeActionStmt.run(
 					userId,
 					act.podcast,
 					act.episode,

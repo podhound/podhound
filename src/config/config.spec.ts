@@ -32,6 +32,11 @@ describe("Config Class", () => {
 			expect(config.port).toBe(expectedPort);
 			expect(config.databasePath).toBe(expectedPath);
 			expect(config.autoRegister).toBe(expectedAutoReg);
+			expect(config.authCacheTtlMs).toBe(300_000);
+			expect(config.sessionTtlSec).toBe(2_592_000);
+			expect(config.gcIntervalMs).toBe(900_000);
+			expect(config.rateLimitWindowMs).toBe(60_000);
+			expect(config.rateLimitMaxAttempts).toBe(5);
 		},
 	);
 });
