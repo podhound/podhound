@@ -3,6 +3,8 @@ name: Docker
 on:
   push:
     tags: [ "v*" ]
+  release:
+    types: [ published ]
   workflow_dispatch:
 
 jobs:
@@ -35,9 +37,18 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract version from tag
+      - name: Extract version from tag or release
         id: version
-        run: echo "tag=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+        run: |
+          RAW_TAG="${{ github.event.release.tag_name }}"
+          if [ -z "$RAW_TAG" ]; then
+            RAW_TAG="${GITHUB_REF#refs/tags/}"
+          fi
+          TAG="${RAW_TAG#v}"
+          if [ -z "$TAG" ] || [ "$TAG" = "$GITHUB_REF" ]; then
+            TAG=$(jq -r .version package.json)
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: Build and push
         uses: docker/build-push-action@v6

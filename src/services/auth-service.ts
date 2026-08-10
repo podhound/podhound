@@ -37,7 +37,7 @@ export class AuthService {
 			return cached.user;
 		}
 
-		const user = this.userService.getUserByUsername(username);
+		let user = this.userService.getUserByUsername(username);
 		if (!user) {
 			return null;
 		}
@@ -46,6 +46,15 @@ export class AuthService {
 		if (!isValid) {
 			this.authCache.delete(cacheKey);
 			return null;
+		}
+
+		// Transparently migrate legacy password hashes to bcrypt upon successful login
+		if (this.userService.isLegacyPasswordHash(user.password_hash)) {
+			this.userService.updateUserPassword(username, password_raw);
+			const updatedUser = this.userService.getUserByUsername(username);
+			if (updatedUser) {
+				user = updatedUser;
+			}
 		}
 
 		const ttl = this.config?.authCacheTtlMs ?? 5 * 60 * 1000;

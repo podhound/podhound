@@ -51,6 +51,11 @@ export class UserService {
 		return result.changes > 0;
 	}
 
+	public isLegacyPasswordHash(hash: string): boolean {
+		// Current target standard algorithm is bcrypt ($2b$). Anything else is legacy.
+		return !hash.startsWith("$2b$");
+	}
+
 	public getAllUsers(): { id: number; username: string }[] {
 		return this.getAllUsersStmt.all() as {
 			id: number;

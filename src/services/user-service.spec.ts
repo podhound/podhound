@@ -52,4 +52,12 @@ describe("UserService", () => {
 		expect(users.length).toBeGreaterThanOrEqual(2);
 		expect(users.map((u) => u.username)).toContain("user1");
 	});
+
+	it("should correctly identify legacy password hashes", () => {
+		expect(userService.isLegacyPasswordHash("$argon2id$v=19$m=65536...")).toBe(
+			true,
+		);
+		expect(userService.isLegacyPasswordHash("$1$md5hash")).toBe(true);
+		expect(userService.isLegacyPasswordHash("$2b$10$bcrypt...")).toBe(false);
+	});
 });

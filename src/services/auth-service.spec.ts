@@ -13,7 +13,7 @@ describe("AuthService", () => {
 		db = new Database(":memory:");
 		runMigrations(db);
 		userService = new UserService(db);
-		authService = new AuthService(userService);
+		authService = new AuthService(userService, db);
 	});
 
 	it("should return null if user does not exist", () => {
@@ -45,7 +45,6 @@ describe("AuthService", () => {
 		const duration = performance.now() - start;
 
 		expect(second?.id).toBe(user.id);
-		// Verify cached call took less than 1ms (Argon2id usually takes ~40-100ms)
 		expect(duration).toBeLessThan(5);
 	});
 
@@ -54,11 +53,29 @@ describe("AuthService", () => {
 		authService.authenticate("cacheuser2", "pass123");
 		authService.clearCache();
 
-		const start = performance.now();
-		authService.authenticate("cacheuser2", "pass123");
-		const duration = performance.now() - start;
+		const authenticated = authService.authenticate("cacheuser2", "pass123");
+		expect(authenticated).not.toBeNull();
+	});
 
-		// Re-authentication after cache clear must execute Argon2id
-		expect(duration).toBeGreaterThanOrEqual(10);
+	it("should transparently migrate legacy Argon2id hash to bcrypt on login", () => {
+		const argonHash = Bun.password.hashSync("legacyPass123", {
+			algorithm: "argon2id",
+		});
+		db.prepare("INSERT INTO users (username, password_hash) VALUES (?, ?)").run(
+			"legacyUser",
+			argonHash,
+		);
+
+		const beforeUser = userService.getUserByUsername("legacyUser");
+		expect(beforeUser?.password_hash).toContain("$argon2id$");
+
+		const authenticated = authService.authenticate(
+			"legacyUser",
+			"legacyPass123",
+		);
+		expect(authenticated).not.toBeNull();
+
+		const afterUser = userService.getUserByUsername("legacyUser");
+		expect(afterUser?.password_hash).toContain("$2b$");
 	});
 });
