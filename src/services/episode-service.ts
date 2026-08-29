@@ -1,5 +1,6 @@
 import type { Database, Statement } from "bun:sqlite";
-import type { EpisodeActionPayload } from "../types";
+import type { EpisodeActionPayload, UserSettings } from "../types";
+import { SYSTEM_DEFAULT_USER_SETTINGS } from "../utils";
 
 export class EpisodeService {
 	private getEpisodeActionsStmt: Statement;
@@ -41,29 +42,85 @@ export class EpisodeService {
 		sinceTimestamp: number,
 		podcastParam: string | null,
 	): EpisodeActionPayload[] {
-		if (podcastParam) {
-			return this.getEpisodeActionsWithPodcastStmt.all(
-				userId,
-				sinceTimestamp,
-				podcastParam,
-			) as EpisodeActionPayload[];
-		}
-		return this.getEpisodeActionsStmt.all(
-			userId,
-			sinceTimestamp,
-		) as EpisodeActionPayload[];
+		const rows = (
+			podcastParam
+				? this.getEpisodeActionsWithPodcastStmt.all(
+						userId,
+						sinceTimestamp,
+						podcastParam,
+					)
+				: this.getEpisodeActionsStmt.all(userId, sinceTimestamp)
+		) as (Omit<EpisodeActionPayload, "timestamp"> & { timestamp: number })[];
+
+		return rows.map((row) => ({
+			...row,
+			timestamp: new Date(row.timestamp * 1000).toISOString(),
+		}));
 	}
 
 	public saveEpisodeActions(
 		userId: number,
 		actions: EpisodeActionPayload[],
+		effectiveSettings: Required<UserSettings> = SYSTEM_DEFAULT_USER_SETTINGS,
 	): void {
 		const nowTimestamp = Math.floor(Date.now() / 1000);
+		const actionMapDelete = effectiveSettings.action_map_delete;
+
 		this.db.transaction(() => {
 			for (const act of actions) {
 				if (!act.podcast || !act.episode || !act.action) {
 					continue;
 				}
+
+				const baseTimestamp = act.timestamp
+					? this.normalizeTimestamp(act.timestamp)
+					: nowTimestamp;
+
+				if (act.action === "delete") {
+					if (actionMapDelete === "replace_play") {
+						const pos =
+							act.total && act.total > 0
+								? act.total
+								: act.position && act.position > 0
+									? act.position
+									: 1;
+						this.insertEpisodeActionStmt.run(
+							userId,
+							act.podcast,
+							act.episode,
+							"play",
+							pos,
+							act.total || pos,
+							baseTimestamp,
+							act.device || null,
+							act.started || 0,
+							act.guid || null,
+						);
+						continue;
+					}
+
+					if (actionMapDelete === "prepend_play") {
+						const pos =
+							act.total && act.total > 0
+								? act.total
+								: act.position && act.position > 0
+									? act.position
+									: 1;
+						this.insertEpisodeActionStmt.run(
+							userId,
+							act.podcast,
+							act.episode,
+							"play",
+							pos,
+							act.total || pos,
+							Math.max(0, baseTimestamp - 1),
+							act.device || null,
+							act.started || 0,
+							act.guid || null,
+						);
+					}
+				}
+
 				this.insertEpisodeActionStmt.run(
 					userId,
 					act.podcast,
@@ -71,7 +128,7 @@ export class EpisodeService {
 					act.action,
 					act.position || 0,
 					act.total || 0,
-					act.timestamp ? this.normalizeTimestamp(act.timestamp) : nowTimestamp,
+					baseTimestamp,
 					act.device || null,
 					act.started || 0,
 					act.guid || null,

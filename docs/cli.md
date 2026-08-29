@@ -46,3 +46,25 @@ bun run src/main.ts users update <username> <new_password>
 ./dist/podhound users update <username> <new_password>
 ```
 Updates the password for an existing user account.
+
+### Get user settings
+
+```bash
+# Via Bun (development)
+bun run src/main.ts users get-settings <username>
+
+# Via compiled binary
+./dist/podhound users get-settings <username>
+```
+Displays the user's explicit settings and resolved effective settings.
+
+### Set user setting
+
+```bash
+# Via Bun (development)
+bun run src/main.ts users set-setting <username> <key> <value>
+
+# Via compiled binary
+./dist/podhound users set-setting <username> <key> <value>
+```
+Sets a user configuration option (e.g. `podhound users set-setting alex action_map_delete replace_play`).

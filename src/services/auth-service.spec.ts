@@ -78,4 +78,49 @@ describe("AuthService", () => {
 		const afterUser = userService.getUserByUsername("legacyUser");
 		expect(afterUser?.password_hash).toContain("$2b$");
 	});
+
+	it("should return null for non-existent or expired session ID", () => {
+		expect(authService.getUserBySessionId("non-existent")).toBeNull();
+
+		const user = userService.createUser("expireuser", "pass123");
+		const sessionId = authService.createSession(user.id);
+
+		// Manually expire session in DB
+		db.prepare("UPDATE sessions SET expires_at = ? WHERE id = ?").run(
+			Math.floor(Date.now() / 1000) - 3600,
+			sessionId,
+		);
+
+		expect(authService.getUserBySessionId(sessionId)).toBeNull();
+	});
+
+	it("should retrieve user by session ID with parsed settings and resolved effectiveSettings", () => {
+		const user = userService.createUser("sessionuser", "pass123");
+		userService.setUserSetting(
+			"sessionuser",
+			"action_map_delete",
+			"prepend_play",
+		);
+
+		const sessionId = authService.createSession(user.id);
+		const sessionUser = authService.getUserBySessionId(sessionId);
+
+		expect(sessionUser).not.toBeNull();
+		expect(sessionUser?.id).toBe(user.id);
+		expect(sessionUser?.username).toBe("sessionuser");
+		expect(sessionUser?.settings).toEqual({
+			action_map_delete: "prepend_play",
+		});
+		expect(sessionUser?.effectiveSettings).toEqual({
+			action_map_delete: "prepend_play",
+		});
+	});
+
+	it("should return null if db is not configured in authService", () => {
+		const authWithoutDb = new AuthService(userService);
+		expect(authWithoutDb.getUserBySessionId("any-id")).toBeNull();
+		expect(() => authWithoutDb.createSession(1)).toThrow(
+			"Database not provided to AuthService",
+		);
+	});
 });

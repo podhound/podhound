@@ -1,8 +1,12 @@
 import type { Database } from "bun:sqlite";
 import type { Logger } from "../../logger";
 import m001 from "./001_initial_schema.sql" with { type: "text" };
+import m002 from "./002_user_settings.sql" with { type: "text" };
 
-const migrations = [{ name: "001_initial_schema.sql", sql: m001 }];
+const migrations = [
+	{ name: "001_initial_schema.sql", sql: m001 },
+	{ name: "002_user_settings.sql", sql: m002 },
+];
 
 export function runMigrations(db: Database, logger?: Logger): void {
 	db.transaction(() => {

@@ -1,5 +1,5 @@
 import type { UserService } from "../../services";
-import type { CliSubRouter } from "../../types";
+import type { CliSubRouter, UserSettings } from "../../types";
 
 export class UserCliRouter implements CliSubRouter {
 	public readonly slug = "users";
@@ -19,6 +19,12 @@ export class UserCliRouter implements CliSubRouter {
 			},
 			update: this.withArgs(2, ([, , username, newPassword]) => {
 				this.update(username, newPassword);
+			}),
+			"set-setting": this.withArgs(3, ([, , username, key, value]) => {
+				this.setSetting(username, key, value);
+			}),
+			"get-settings": this.withArgs(1, ([, , username]) => {
+				this.getSettings(username);
 			}),
 		};
 
@@ -61,6 +67,36 @@ export class UserCliRouter implements CliSubRouter {
 	}
 
 	/**
+	 * Sets a specific setting for a user.
+	 */
+	public setSetting(username: string, key: string, value: string): void {
+		if (
+			!this.userService.setUserSetting(
+				username,
+				key as keyof UserSettings,
+				value,
+			)
+		) {
+			console.log(`User '${username}' not found.`);
+			return;
+		}
+		console.log(`Setting '${key}' updated for user '${username}'.`);
+	}
+
+	/**
+	 * Retrieves and prints settings for a user.
+	 */
+	public getSettings(username: string): void {
+		const userSettings = this.userService.getUserSettings(username);
+		if (!userSettings) {
+			console.log(`User '${username}' not found.`);
+			return;
+		}
+		console.log(`Settings for user '${username}':`);
+		console.log(JSON.stringify(userSettings, null, 2));
+	}
+
+	/**
 	 * Prints usage instructions for the users CLI domain.
 	 */
 	public printUsage(): void {
@@ -68,6 +104,8 @@ export class UserCliRouter implements CliSubRouter {
 		console.log("  users create <username> <password>");
 		console.log("  users list");
 		console.log("  users update <username> <newpassword>");
+		console.log("  users set-setting <username> <key> <value>");
+		console.log("  users get-settings <username>");
 	}
 
 	/**

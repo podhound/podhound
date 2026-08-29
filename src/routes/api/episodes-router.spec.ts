@@ -8,7 +8,13 @@ describe("EpisodesApiRouter", () => {
 	let authenticatorMock: ApiAuthenticator;
 	let epServiceMock: EpisodeService;
 	let router: EpisodesApiRouter;
-	const mockUser: User = { id: 1, username: "alex", password_hash: "hash" };
+	const mockUser: User = {
+		id: 1,
+		username: "alex",
+		password_hash: "hash",
+		settings: {},
+		effectiveSettings: { action_map_delete: "none" },
+	};
 
 	beforeEach(() => {
 		authenticatorMock = {
@@ -57,7 +63,11 @@ describe("EpisodesApiRouter", () => {
 		const res = await router.handle(req, ["alex.json"]);
 
 		expect(res.status).toBe(200);
-		expect(epServiceMock.saveEpisodeActions).toHaveBeenCalledWith(1, actions);
+		expect(epServiceMock.saveEpisodeActions).toHaveBeenCalledWith(
+			1,
+			actions,
+			mockUser.effectiveSettings,
+		);
 	});
 
 	it("should return 400 when POST payload is not an array", async () => {

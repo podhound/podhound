@@ -39,4 +39,23 @@ describe("Config Class", () => {
 			expect(config.rateLimitMaxAttempts).toBe(5);
 		},
 	);
+
+	it("should parse valid DEFAULT_USER_SETTINGS JSON correctly", () => {
+		const cfg = new Config({
+			DEFAULT_USER_SETTINGS: '{"action_map_delete":"replace_play"}',
+		});
+		expect(cfg.defaultUserSettings).toEqual({
+			action_map_delete: "replace_play",
+		});
+	});
+
+	it("should safely fallback to empty object for missing or invalid DEFAULT_USER_SETTINGS", () => {
+		const emptyCfg = new Config({});
+		expect(emptyCfg.defaultUserSettings).toEqual({});
+
+		const invalidCfg = new Config({
+			DEFAULT_USER_SETTINGS: "invalid-json",
+		});
+		expect(invalidCfg.defaultUserSettings).toEqual({});
+	});
 });

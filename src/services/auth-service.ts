@@ -22,7 +22,7 @@ export class AuthService {
 				"INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)",
 			);
 			this.getUserBySessionStmt = this.db.prepare(
-				`SELECT u.* FROM users u 
+				`SELECT u.username FROM users u 
 				 JOIN sessions s ON u.id = s.user_id 
 				 WHERE s.id = ? AND s.expires_at > ?`,
 			);
@@ -105,10 +105,14 @@ export class AuthService {
 		const stmt =
 			this.getUserBySessionStmt ||
 			this.db.prepare(
-				`SELECT u.* FROM users u 
+				`SELECT u.username FROM users u 
 				 JOIN sessions s ON u.id = s.user_id 
 				 WHERE s.id = ? AND s.expires_at > ?`,
 			);
-		return (stmt.get(sessionId, now) as User | null) || null;
+		const row = stmt.get(sessionId, now) as { username: string } | null;
+		if (!row) {
+			return null;
+		}
+		return this.userService.getUserByUsername(row.username);
 	}
 }

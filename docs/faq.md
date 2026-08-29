@@ -18,6 +18,21 @@ Find quick answers to common questions about running, configuring, and maintaini
 
 ---
 
+### 📥 Why don't deleted/dismissed episodes disappear from the Inbox on my other devices?
+In podcast apps like **AntennaPod**, the "Inbox" (new episodes feed) is tracked locally on each device. The gPodder API v2 standard does not define a dedicated "dismiss from inbox" action.
+
+However, when an episode is marked as **played**, AntennaPod automatically removes it from the Inbox across all synced devices.
+
+To enable cross-device inbox removal when deleting episodes:
+1. **Globally (for all users):** Set `DEFAULT_USER_SETTINGS='{"action_map_delete":"replace_play"}'` in your `.env` or Docker configuration.
+2. **Per User:** Run the CLI command:
+   ```bash
+   podhound users set-setting <username> action_map_delete replace_play
+   ```
+This automatically transforms `delete` actions into `play` actions, syncing the dismissed state across all your devices.
+
+---
+
 ### 🔒 How do I disable new user registrations?
 Set the `AUTO_REGISTER` environment variable to `false` in your Docker or binary setup:
 ```env

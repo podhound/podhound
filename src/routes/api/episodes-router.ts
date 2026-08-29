@@ -82,7 +82,11 @@ export class EpisodesApiRouter implements ApiSubRouter {
 				);
 			}
 
-			this.episodeService.saveEpisodeActions(user.id, actions);
+			this.episodeService.saveEpisodeActions(
+				user.id,
+				actions,
+				user.effectiveSettings,
+			);
 			return Response.json({
 				timestamp: Math.floor(Date.now() / 1000),
 				update_urls: [],
