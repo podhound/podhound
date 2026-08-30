@@ -68,3 +68,5 @@ bun run src/main.ts users set-setting <username> <key> <value>
 ./dist/podhound users set-setting <username> <key> <value>
 ```
 Sets a user configuration option (e.g. `podhound users set-setting alex action_map_delete replace_play`).
+
+For all available settings and values, see the **[User Settings Guide](user-settings.md)**.

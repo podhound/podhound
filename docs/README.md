@@ -14,6 +14,7 @@ Welcome to the Podhound documentation. Below you'll find setup guides, environme
 ### ⚙️ Configuration & Management
 
 * **[Environment Variables](environment.md)** — Complete list of environment variables for server configuration.
+* **[User Settings & Action Mapping](user-settings.md)** — Behavioral policies, action mapping, and cascading defaults.
 * **[CLI Usage](cli.md)** — Command-line interface commands and database maintenance.
 
 ---

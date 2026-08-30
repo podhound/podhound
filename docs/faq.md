@@ -31,6 +31,8 @@ To enable cross-device inbox removal when deleting episodes:
    ```
 This automatically transforms `delete` actions into `play` actions, syncing the dismissed state across all your devices.
 
+For more details, see the **[User Settings & Action Mapping Guide](user-settings.md)**.
+
 ---
 
 ### 🔒 How do I disable new user registrations?
