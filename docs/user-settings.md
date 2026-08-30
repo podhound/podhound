@@ -6,13 +6,16 @@ Podhound supports an extensible user settings system stored as JSON in SQLite. S
 
 ## 🏛️ Cascading Resolution (3-Tier Precedence)
 
-Settings follow a 3-tier fallback hierarchy:
+When determining the effective setting for a user, Podhound resolves values in the following order of precedence (highest priority wins):
 
-$$\text{System Default in Code ("none")} \longrightarrow \text{Global Fallback (DEFAULT\_USER\_SETTINGS)} \longrightarrow \text{User Profile (users.settings)}$$
+| Priority | Level | Source | Description |
+| :---: | :--- | :--- | :--- |
+| 🥇 **1** *(Highest)* | **User Profile** | `users.settings` in DB | Explicitly set for a user via CLI. Overrides everything. |
+| 🥈 **2** *(Fallback)* | **Global Fallback** | `DEFAULT_USER_SETTINGS` in ENV | Applied if the user has no personal setting configured. |
+| 🥉 **3** *(Lowest)* | **System Default** | Hardcoded in server | Safe baseline (`"none"`) according to standard gPodder API v2. |
 
-1. **User Profile (`users.settings` in DB):** Explicitly set for a user via CLI (or upcoming Web Dashboard). Overrides all global defaults.
-2. **Global Fallback (`DEFAULT_USER_SETTINGS` in ENV):** Applied to all users (including auto-registered users) who have not explicitly overridden the setting.
-3. **System Default (in code):** The safe baseline according to the standard gPodder API v2 specification.
+> 📌 **Resolution Flow:**  
+> **User Profile** *(if set)* ➔ **Global Fallback** *(if set in ENV)* ➔ **System Default** (`"none"`)
 
 ---
 
