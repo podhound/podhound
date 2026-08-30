@@ -56,7 +56,7 @@ bun run src/main.ts users get-settings <username>
 # Via compiled binary
 ./dist/podhound users get-settings <username>
 ```
-Displays the user's explicit settings and resolved effective settings.
+Displays the effective settings currently applied to the user.
 
 ### Set user setting
 

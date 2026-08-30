@@ -77,8 +77,7 @@ describe("UserService", () => {
 		expect(fetched?.settings.action_map_delete).toBe("replace_play");
 
 		const allSettings = userService.getUserSettings("settingsuser");
-		expect(allSettings?.settings.action_map_delete).toBe("replace_play");
-		expect(allSettings?.effective.action_map_delete).toBe("replace_play");
+		expect(allSettings?.action_map_delete).toBe("replace_play");
 	});
 
 	it("should return false when setting configuration for non-existent user", () => {
@@ -104,6 +103,6 @@ describe("UserService", () => {
 		expect(user.effectiveSettings?.action_map_delete).toBe("prepend_play");
 
 		const allSettings = configService.getUserSettings("customuser");
-		expect(allSettings?.effective.action_map_delete).toBe("prepend_play");
+		expect(allSettings?.action_map_delete).toBe("prepend_play");
 	});
 });

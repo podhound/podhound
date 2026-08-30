@@ -15,8 +15,7 @@ describe("UserCliRouter", () => {
 			updateUserPassword: mock(() => true),
 			setUserSetting: mock(() => true),
 			getUserSettings: mock((_username: string) => ({
-				settings: { action_map_delete: "replace_play" },
-				effective: { action_map_delete: "replace_play" },
+				action_map_delete: "replace_play",
 			})),
 		} as unknown as UserService;
 
@@ -73,8 +72,7 @@ describe("UserCliRouter", () => {
 		expect(consoleLogSpy).toHaveBeenCalledWith(
 			JSON.stringify(
 				{
-					settings: { action_map_delete: "replace_play" },
-					effective: { action_map_delete: "replace_play" },
+					action_map_delete: "replace_play",
 				},
 				null,
 				2,

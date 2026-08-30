@@ -76,12 +76,7 @@ docker exec -it podhound podhound users get-settings <username>
 Output:
 ```json
 {
-  "settings": {
-    "action_map_delete": "replace_play"
-  },
-  "effective": {
-    "action_map_delete": "replace_play"
-  }
+  "action_map_delete": "replace_play"
 }
 ```
 

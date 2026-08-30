@@ -120,20 +120,15 @@ export class UserService {
 		return result.changes > 0;
 	}
 
-	public getUserSettings(username: string): {
-		settings: UserSettings;
-		effective: Required<UserSettings>;
-	} | null {
+	public getUserSettings(username: string): Required<UserSettings> | null {
 		const user = this.getUserByUsername(username);
 		if (!user) {
 			return null;
 		}
-		return {
-			settings: user.settings,
-			effective:
-				user.effectiveSettings ||
-				resolveUserSettings(user.settings, this.config?.defaultUserSettings),
-		};
+		return (
+			user.effectiveSettings ||
+			resolveUserSettings(user.settings, this.config?.defaultUserSettings)
+		);
 	}
 
 	public isLegacyPasswordHash(hash: string): boolean {
