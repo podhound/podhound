@@ -1,7 +1,7 @@
 # Multi-stage Dockerfile for Podhound
 
 # Stage 1: Build standalone compiled executable using Bun
-FROM oven/bun:latest AS builder
+FROM oven/bun:alpine AS builder
 WORKDIR /app
 
 COPY package.json bun.lock ./
@@ -16,7 +16,7 @@ RUN bun build --compile --minify ./src/main.ts --outfile dist/podhound
 FROM alpine:latest AS runner
 WORKDIR /app
 
-RUN apk add --no-cache ca-certificates tzdata gcompat libc6-compat
+RUN apk add --no-cache ca-certificates tzdata libstdc++
 
 COPY --from=builder /app/dist/podhound /app/podhound
 
